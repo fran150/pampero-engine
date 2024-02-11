@@ -1,15 +1,21 @@
 use std::collections::HashSet;
+use game_loop::GameLoop;
+use systems::{GameLoopSystems, SystemFunction, SystemID};
 use uuid::Uuid;
 
 #[derive(Eq, Hash, PartialEq, Clone, Copy)]
 pub struct Entity(Uuid);
 
+pub use game_loop::GameLoopPhase;
 mod macros;
+pub mod systems;
+mod game_loop;
+mod event;
 
 pub struct App<T> {
     entities: HashSet<Entity>,
     components: T,
-    systems: HashSet<fn(Entity, &mut T) -> Option<()>>,
+    systems: GameLoopSystems<T>,
 }
 
 pub trait EntityDrop {
@@ -22,7 +28,7 @@ impl<T> App<T>
         App {
             entities: HashSet::new(),
             components,
-            systems: HashSet::new(),
+            systems: GameLoopSystems::new(),
         }
     }
 
@@ -41,20 +47,16 @@ impl<T> App<T>
         self.entities.remove(entity);
     }
 
-    pub fn register_system(&mut self, system: fn(Entity, &mut T) -> Option<()>) -> bool {
-        self.systems.insert(system)
+    pub fn register_system(&mut self, game_loop_phase: GameLoopPhase, system_function: SystemFunction<T>) -> SystemID {
+        self.systems.register_system(game_loop_phase, system_function)
     }
 
-    pub fn unregister_system(&mut self, system: &fn(Entity, &mut T) -> Option<()>) -> bool {
-        self.systems.remove(system)
+    pub fn unregister_system(&mut self, game_loop_phase: GameLoopPhase, system: &SystemID) {
+        self.systems.unregister_system(game_loop_phase, system);
     }
 
     pub fn run(&mut self) {
-        for entity in self.entities.iter() {
-            for system in self.systems.iter() {
-                system(entity.clone(), &mut self.components);
-            }
-        }
+        GameLoop::run(self);
     }
 }
 

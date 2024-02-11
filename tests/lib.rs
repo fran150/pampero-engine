@@ -1,5 +1,8 @@
 use std::{collections::HashMap, cell::RefCell};
 
+use pampero_engine::systems::SystemContext;
+use pampero_engine::systems::SystemFunction;
+use pampero_engine::GameLoopPhase;
 use paste::paste;
 
 use pampero_engine::Entity;
@@ -14,16 +17,16 @@ pub struct Name(String);
 
 components_gen!(person: Person, name: Name);
 
-fn greet_everyone(entity: Entity, components: &mut Components) -> Option<()> {
-    let name = components.get_name(&entity)?;
+fn greet_everyone(context: SystemContext<Components>) -> Option<()> {
+    let name = context.components.get_name(&context.entity)?;
 
     println!("Hello! Welcome {}", name.borrow().0);
     Some(())
 }
 
-fn sit_persons(entity: Entity, components: &mut Components) -> Option<()> {
-    let name = components.get_name(&entity)?;
-    let person = components.get_person(&entity)?;
+fn sit_persons(context: SystemContext<Components>) -> Option<()> {
+    let name = context.components.get_name(&context.entity)?;
+    let person = context.components.get_person(&context.entity)?;
 
     let mut name = name.borrow_mut();
 
@@ -46,8 +49,8 @@ fn run_app() {
 
     app.components().add_person(&valen, Person());
 
-    app.register_system(greet_everyone);
-    app.register_system(sit_persons);
+    app.register_system(GameLoopPhase::Physics, SystemFunction::from(greet_everyone));
+    app.register_system(GameLoopPhase::Physics, SystemFunction::from(sit_persons));
 
     app.run();
 }
