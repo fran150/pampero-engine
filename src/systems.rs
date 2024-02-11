@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use uuid::Uuid;
 
-use crate::{entities::{Entities, Entity}, event::Event, game_loop::GameLoopPhase};
+use crate::{entities::{Entities, Entity, EntityDropper}, event::Event, game_loop::GameLoopPhase};
 
 #[derive(Eq, Hash, PartialEq, Clone, Copy)]
 pub struct SystemID(Uuid);
@@ -57,11 +57,11 @@ impl<T> GameLoopSystems<T> {
         }
     }
 
-    pub fn call_systems(&self, game_loop_phase: GameLoopPhase, entities: &Entities, components: &mut T, event: &Event) {
+    pub fn call_systems(&self, game_loop_phase: GameLoopPhase, entities: &Entities, components: &mut T, event: &Event, entity_dropper: &mut EntityDropper) {
         if let Some(systems) = self.systems.get(&game_loop_phase) {
             for (_, system) in systems.iter() {
                 for entity in entities.iter() {
-                    let context = SystemContext::from(entity.clone(), components, event);
+                    let context = SystemContext::from(entity.clone(), components, event, entity_dropper);
                     system.call(context);
                 }
             }
@@ -92,12 +92,13 @@ impl<T> GameLoopSystems<T> {
 pub struct SystemContext<'a, T> {
     pub entity: Entity,
     pub components: &'a mut T,
-    pub event: &'a Event
+    pub event: &'a Event,
+    pub entity_dropper: &'a mut EntityDropper,
 }
 
 impl<'a, T> SystemContext<'a, T> {
-    pub fn from(entity: Entity, components: &'a mut T, event: &'a Event) -> Self {
-        SystemContext { entity, components, event }
+    pub fn from(entity: Entity, components: &'a mut T, event: &'a Event, entity_dropper: &'a mut EntityDropper) -> Self {
+        SystemContext { entity, components, event, entity_dropper }
     }
 }
 

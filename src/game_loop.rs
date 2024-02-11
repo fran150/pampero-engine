@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use crate::{event::{Event, TimeStepEventType}, App};
+use crate::{entities::{EntityDrop, EntityDropper}, event::{Event, TimeStepEventType}, App};
 
 #[derive(Eq, Hash, PartialEq)]
 pub enum GameLoopPhase {
@@ -20,7 +20,8 @@ pub enum GameLoopPhase {
 pub struct GameLoop;
 
 impl GameLoop {
-    pub fn run<T>(app: &mut App<T>) {
+    pub fn run<T>(app: &mut App<T>) 
+        where T: EntityDrop {
         const PPS:f64 = 60.0;
         const FPS:f64 = 60.0;
         
@@ -37,6 +38,8 @@ impl GameLoop {
 
         let physics_size = 1000.0 / PPS;
         let frame_size = 1000.0 / FPS;
+
+        let mut entity_dropper = EntityDropper::new();
 
         // Init loop
 
@@ -55,9 +58,11 @@ impl GameLoop {
 
                 let event = Event::timestep_event(TimeStepEventType::PhysicStep, t, dt);
 
-                app.systems.call_systems(GameLoopPhase::PrePhysics, &app.entities, &mut app.components, &event);
-                app.systems.call_systems(GameLoopPhase::Physics, &app.entities, &mut app.components, &event);
-                app.systems.call_systems(GameLoopPhase::PostPhysics, &app.entities, &mut app.components, &event);
+                app.systems.call_systems(GameLoopPhase::PrePhysics, &app.entities, &mut app.components, &event, &mut entity_dropper);
+                app.systems.call_systems(GameLoopPhase::Physics, &app.entities, &mut app.components, &event, &mut entity_dropper);
+                app.systems.call_systems(GameLoopPhase::PostPhysics, &app.entities, &mut app.components, &event, &mut entity_dropper);
+
+                entity_dropper.drop_all(app);
 
                 physics_step_counter += 1;
             }
@@ -67,10 +72,12 @@ impl GameLoop {
 
                 let event = Event::timestep_event(TimeStepEventType::FrameStep, t, dt);
 
-                app.systems.call_systems(GameLoopPhase::PreFrame, &app.entities, &mut app.components, &event);
-                app.systems.call_systems(GameLoopPhase::Frame, &app.entities, &mut app.components, &event);
-                app.systems.call_systems(GameLoopPhase::PostFrame, &app.entities, &mut app.components, &event);
+                app.systems.call_systems(GameLoopPhase::PreFrame, &app.entities, &mut app.components, &event, &mut entity_dropper);
+                app.systems.call_systems(GameLoopPhase::Frame, &app.entities, &mut app.components, &event, &mut entity_dropper);
+                app.systems.call_systems(GameLoopPhase::PostFrame, &app.entities, &mut app.components, &event, &mut entity_dropper);
     
+                entity_dropper.drop_all(app);
+
                 frame_counter += 1;
             }
 

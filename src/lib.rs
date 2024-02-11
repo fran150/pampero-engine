@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use entities::{Entities, EntityDrop};
 use game_loop::GameLoop;
 use systems::{GameLoopSystems, SystemFunction, SystemID};
