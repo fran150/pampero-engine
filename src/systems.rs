@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use uuid::Uuid;
 
-use crate::{event::Event, game_loop::{self, GameLoopPhase}, Entity};
+use crate::{entities::{Entities, Entity}, event::Event, game_loop::GameLoopPhase};
 
 #[derive(Eq, Hash, PartialEq, Clone, Copy)]
 pub struct SystemID(Uuid);
@@ -57,7 +57,7 @@ impl<T> GameLoopSystems<T> {
         }
     }
 
-    pub fn call_systems(&self, game_loop_phase: GameLoopPhase, entities: &HashSet<Entity>, components: &mut T, event: &Event) {
+    pub fn call_systems(&self, game_loop_phase: GameLoopPhase, entities: &Entities, components: &mut T, event: &Event) {
         if let Some(systems) = self.systems.get(&game_loop_phase) {
             for (_, system) in systems.iter() {
                 for entity in entities.iter() {

@@ -1,50 +1,45 @@
 use std::collections::HashSet;
+use entities::{Entities, EntityDrop};
 use game_loop::GameLoop;
 use systems::{GameLoopSystems, SystemFunction, SystemID};
-use uuid::Uuid;
-
-#[derive(Eq, Hash, PartialEq, Clone, Copy)]
-pub struct Entity(Uuid);
 
 pub use game_loop::GameLoopPhase;
 mod macros;
 pub mod systems;
 mod game_loop;
 mod event;
+pub mod entities;
 
 pub struct App<T> {
-    entities: HashSet<Entity>,
+    entities: Entities,
     components: T,
     systems: GameLoopSystems<T>,
-}
-
-pub trait EntityDrop {
-    fn remove_entity_components(&mut self, entity: &Entity);
 }
 
 impl<T> App<T> 
     where T: EntityDrop {
     pub fn new(components: T) -> App<T> {
         App {
-            entities: HashSet::new(),
+            entities: Entities::new(),
             components,
             systems: GameLoopSystems::new(),
         }
     }
 
-    pub fn components(&mut self) -> &mut T {
+    pub fn components(&self) -> &T {
+        &self.components
+    }
+
+    pub fn components_mut(&mut self) -> &mut T {
         &mut self.components
     }
 
-    pub fn spawn_entity(&mut self) -> Entity {
-        let entity = Entity(Uuid::new_v4());
-        self.entities.insert(entity.clone());
-        entity        
+    pub fn entities(&self) -> &Entities {
+        &self.entities
     }
 
-    pub fn remove_entity(&mut self, entity: &Entity) {
-        self.components().remove_entity_components(entity);
-        self.entities.remove(entity);
+    pub fn entities_mut(&mut self) -> &mut Entities {
+        &mut self.entities
     }
 
     pub fn register_system(&mut self, game_loop_phase: GameLoopPhase, system_function: SystemFunction<T>) -> SystemID {

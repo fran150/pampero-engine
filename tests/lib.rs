@@ -1,14 +1,14 @@
 use std::{collections::HashMap, cell::RefCell};
 
+use pampero_engine::entities::EntityDrop;
+use pampero_engine::entities::Entity;
 use pampero_engine::systems::SystemContext;
 use pampero_engine::systems::SystemFunction;
 use pampero_engine::GameLoopPhase;
 use paste::paste;
 
-use pampero_engine::Entity;
 use pampero_engine::App;
 use pampero_engine::components_gen;
-use pampero_engine::EntityDrop;
 
 #[derive(Debug)]
 pub struct Person();
@@ -41,13 +41,13 @@ fn sit_persons(context: SystemContext<Components>) -> Option<()> {
 fn run_app() {    
     let mut app = App::new(Components::new());
 
-    let valen = app.spawn_entity();
-    let paksox = app.spawn_entity();
+    let valen = app.entities_mut().spawn_entity();
+    let paksox = app.entities_mut().spawn_entity();
 
-    app.components().add_name(&valen, Name("Valen".to_string()));
-    app.components().add_name(&paksox, Name("Paksox".to_string()));
+    app.components_mut().add_name(&valen, Name("Valen".to_string()));
+    app.components_mut().add_name(&paksox, Name("Paksox".to_string()));
 
-    app.components().add_person(&valen, Person());
+    app.components_mut().add_person(&valen, Person());
 
     app.register_system(GameLoopPhase::Physics, SystemFunction::from(greet_everyone));
     app.register_system(GameLoopPhase::Physics, SystemFunction::from(sit_persons));
