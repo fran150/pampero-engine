@@ -6,7 +6,7 @@ pub use game_loop::GameLoopPhase;
 mod macros;
 pub mod systems;
 mod game_loop;
-mod event;
+pub mod event;
 pub mod entities;
 
 pub struct App<T> {

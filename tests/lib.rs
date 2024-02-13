@@ -1,11 +1,7 @@
-use std::{collections::HashMap, cell::RefCell};
 
-use pampero_engine::entities::EntityDrop;
-use pampero_engine::entities::Entity;
 use pampero_engine::systems::SystemContext;
 use pampero_engine::systems::SystemFunction;
 use pampero_engine::GameLoopPhase;
-use paste::paste;
 
 use pampero_engine::App;
 use pampero_engine::components_gen;
@@ -17,23 +13,31 @@ pub struct Name(String);
 
 components_gen!(person: Person, name: Name);
 
-fn greet_everyone(context: SystemContext<Components>) -> Option<()> {
-    let name = context.components.get_name(&context.entity)?;
-
-    println!("Hello! Welcome {}", name.borrow().0);
-    Some(())
+fn greet_everyone(context: SystemContext<Components>) {
+    for entity in context.entities.iter() {
+        if let Some(name) = context.components.get_name(entity) {
+            println!("Hello! Welcome {}", name.borrow().0);
+        }
+    }
 }
 
-fn sit_persons(context: SystemContext<Components>) -> Option<()> {
-    let name = context.components.get_name(&context.entity)?;
-    let person = context.components.get_person(&context.entity)?;
 
-    let mut name = name.borrow_mut();
-
-    name.0.push_str(" (Seated)");
+fn sit_persons(context: SystemContext<Components>) {
+    context.entities.iter()
+        .filter(|e| {
+            context.components.get_name(e).is_some() && 
+            context.components.get_person(e).is_some()
+        })
+        .for_each(|entity| {
+            let name = context.components.get_name(entity).unwrap();
+            let person = context.components.get_person(entity).unwrap();
     
-    println!("[Type: {:?}] Please {}, sit here!!!", person.borrow_mut(), name.0);
-    Some(())
+            let mut name = name.borrow_mut();
+    
+            name.0.push_str(" (Seated)");
+        
+            println!("[Type: {:?}] Please {}, sit here!!!", person.borrow_mut(), name.0);
+        });
 }
 
 

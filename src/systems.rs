@@ -1,8 +1,8 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 use uuid::Uuid;
 
-use crate::{entities::{Entities, Entity, EntityDropper}, event::Event, game_loop::GameLoopPhase};
+use crate::{entities::Entities, event::Event, game_loop::GameLoopPhase};
 
 #[derive(Eq, Hash, PartialEq, Clone, Copy)]
 pub struct SystemID(Uuid);
@@ -57,13 +57,11 @@ impl<T> GameLoopSystems<T> {
         }
     }
 
-    pub fn call_systems(&self, game_loop_phase: GameLoopPhase, entities: &Entities, components: &mut T, event: &Event, entity_dropper: &mut EntityDropper) {
+    pub fn call_systems(&self, game_loop_phase: GameLoopPhase, event: &Event, components: &mut T, entities: &mut Entities) {
         if let Some(systems) = self.systems.get(&game_loop_phase) {
             for (_, system) in systems.iter() {
-                for entity in entities.iter() {
-                    let context = SystemContext::from(entity.clone(), components, event, entity_dropper);
-                    system.call(context);
-                }
+                let context = SystemContext::from(event, components, entities);
+                system.call(context);
             }
         }
     }
@@ -90,22 +88,21 @@ impl<T> GameLoopSystems<T> {
 
 
 pub struct SystemContext<'a, T> {
-    pub entity: Entity,
-    pub components: &'a mut T,
     pub event: &'a Event,
-    pub entity_dropper: &'a mut EntityDropper,
+    pub components: &'a mut T,
+    pub entities: &'a mut Entities,
 }
 
 impl<'a, T> SystemContext<'a, T> {
-    pub fn from(entity: Entity, components: &'a mut T, event: &'a Event, entity_dropper: &'a mut EntityDropper) -> Self {
-        SystemContext { entity, components, event, entity_dropper }
+    pub fn from(event: &'a Event, components: &'a mut T, entities: &'a mut Entities) -> Self {
+        SystemContext { event, components, entities }
     }
 }
 
-pub struct SystemFunction<T>(fn(context: SystemContext<T>) -> Option<()>);
+pub struct SystemFunction<T>(fn(context: SystemContext<T>));
 
 impl<T> SystemFunction<T> {
-    pub fn from(funtion: fn(SystemContext<T>) -> Option<()>) -> Self {
+    pub fn from(funtion: fn(SystemContext<T>)) -> Self {
         SystemFunction(funtion)
     }
 
