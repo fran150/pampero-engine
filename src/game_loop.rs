@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use crate::{entities::EntityDrop, event::{Event, TimeStepEventType}, App};
+use crate::{ecs::EntityDrop, event::{Event, TimeStepEventType}, App};
 
 #[derive(Eq, Hash, PartialEq)]
 pub enum GameLoopPhase {

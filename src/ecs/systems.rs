@@ -1,36 +1,27 @@
 use std::collections::HashMap;
 
-use uuid::Uuid;
+use crate::{event::Event, game_loop::GameLoopPhase};
 
-use crate::{entities::Entities, event::Event, game_loop::GameLoopPhase};
+use super::{Entities, System, SystemContext, SystemFunction};
 
-#[derive(Eq, Hash, PartialEq, Clone, Copy)]
-pub struct SystemID(Uuid);
-
-impl SystemID {
-    pub fn new() -> Self {
-        SystemID(Uuid::new_v4())
-    }
-}
-
-pub struct Systems<T>(HashMap<SystemID, SystemFunction<T>>);
+pub struct Systems<T>(HashMap<System, SystemFunction<T>>);
 
 impl<T> Systems<T> {
     pub fn new() -> Self {
         Systems(HashMap::new())
     }
 
-    pub fn register_system(&mut self, system_function: SystemFunction<T>) -> SystemID {
-        let system = SystemID::new();
+    pub fn register_system(&mut self, system_function: SystemFunction<T>) -> System {
+        let system = System::new();
         self.0.insert(system.clone(), system_function);
         system
     }
 
-    pub fn unregister_system(&mut self, system: &SystemID) {
+    pub fn unregister_system(&mut self, system: &System) {
         self.0.remove(system);
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = (&SystemID, &SystemFunction<T>)> {
+    pub fn iter(&self) -> impl Iterator<Item = (&System, &SystemFunction<T>)> {
         self.0.iter()
     }
 }
@@ -46,12 +37,12 @@ impl<T> GameLoopSystems<T> {
         }
     }
 
-    pub fn register_system(&mut self, game_loop_phase: GameLoopPhase, system_function: SystemFunction<T>) -> SystemID {
+    pub fn register_system(&mut self, game_loop_phase: GameLoopPhase, system_function: SystemFunction<T>) -> System {
         let systems = self.systems.entry(game_loop_phase).or_insert(Systems::new());
         systems.register_system(system_function)
     }
 
-    pub fn unregister_system(&mut self, game_loop_phase: GameLoopPhase, system: &SystemID) {
+    pub fn unregister_system(&mut self, game_loop_phase: GameLoopPhase, system: &System) {
         if let Some(systems) = self.systems.get_mut(&game_loop_phase) {
             systems.unregister_system(system);
         }
@@ -80,33 +71,5 @@ impl<T> GameLoopSystems<T> {
 
     pub fn systems_mut(&mut self, game_loop_phase: GameLoopPhase) -> Option<&mut Systems<T>> {
         self.systems.get_mut(&game_loop_phase)
-    }
-}
-
-
-
-
-
-pub struct SystemContext<'a, T> {
-    pub event: &'a Event,
-    pub components: &'a mut T,
-    pub entities: &'a mut Entities,
-}
-
-impl<'a, T> SystemContext<'a, T> {
-    pub fn from(event: &'a Event, components: &'a mut T, entities: &'a mut Entities) -> Self {
-        SystemContext { event, components, entities }
-    }
-}
-
-pub struct SystemFunction<T>(fn(context: SystemContext<T>));
-
-impl<T> SystemFunction<T> {
-    pub fn from(funtion: fn(SystemContext<T>)) -> Self {
-        SystemFunction(funtion)
-    }
-
-    pub fn call(&self, context: SystemContext<T>) {
-        (self.0)(context);
     }
 }

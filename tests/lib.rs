@@ -1,6 +1,6 @@
 
-use pampero_engine::systems::SystemContext;
-use pampero_engine::systems::SystemFunction;
+use pampero_engine::ecs::SystemContext;
+use pampero_engine::ecs::SystemFunction;
 use pampero_engine::GameLoopPhase;
 
 use pampero_engine::App;

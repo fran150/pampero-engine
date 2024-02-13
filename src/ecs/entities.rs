@@ -1,15 +1,8 @@
-use std::{collections::HashSet, hash::Hash};
+use std::collections::HashSet;
 
-use uuid::Uuid;
-
-#[derive(Eq, Hash, PartialEq, Clone, Copy)]
-pub struct Entity(Uuid);
+use super::{Entity, EntityDrop};
 
 pub struct Entities(HashSet<Entity>);
-
-pub trait EntityDrop {
-    fn remove_entity_components(&mut self, entity: &Entity);
-}
 
 impl Entities {
     pub fn new() -> Self {
@@ -17,7 +10,7 @@ impl Entities {
     }
 
     pub fn spawn_entity(&mut self) -> Entity {
-        let entity = Entity(Uuid::new_v4());
+        let entity = Entity::new();
         self.0.insert(entity.clone());
         entity        
     }

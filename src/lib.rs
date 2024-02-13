@@ -1,13 +1,12 @@
-use entities::{Entities, EntityDrop};
+use ecs::{Entities, EntityDrop, GameLoopSystems, SystemFunction, System};
 use game_loop::GameLoop;
-use systems::{GameLoopSystems, SystemFunction, SystemID};
+
+pub mod ecs;
 
 pub use game_loop::GameLoopPhase;
 mod macros;
-pub mod systems;
 mod game_loop;
 pub mod event;
-pub mod entities;
 
 pub struct App<T> {
     entities: Entities,
@@ -41,11 +40,11 @@ impl<T> App<T>
         &mut self.entities
     }
 
-    pub fn register_system(&mut self, game_loop_phase: GameLoopPhase, system_function: SystemFunction<T>) -> SystemID {
+    pub fn register_system(&mut self, game_loop_phase: GameLoopPhase, system_function: SystemFunction<T>) -> System {
         self.systems.register_system(game_loop_phase, system_function)
     }
 
-    pub fn unregister_system(&mut self, game_loop_phase: GameLoopPhase, system: &SystemID) {
+    pub fn unregister_system(&mut self, game_loop_phase: GameLoopPhase, system: &System) {
         self.systems.unregister_system(game_loop_phase, system);
     }
 
