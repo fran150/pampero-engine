@@ -1,12 +1,12 @@
+use core::{GameLoop, GameLoopPhase};
+
 use ecs::{Entities, EntityDrop, GameLoopSystems, SystemFunction, System};
-use game_loop::GameLoop;
 
 pub mod ecs;
-
-pub use game_loop::GameLoopPhase;
-mod macros;
-mod game_loop;
+pub mod core;
 pub mod event;
+
+mod macros;
 
 pub struct App<T> {
     entities: Entities,
@@ -55,7 +55,7 @@ impl<T> App<T>
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    //use super::*;
 
     #[test]
     fn run_app() {

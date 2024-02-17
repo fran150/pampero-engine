@@ -2,20 +2,7 @@ use std::time::Instant;
 
 use crate::{ecs::EntityDrop, event::{Event, TimeStepEventType}, App};
 
-#[derive(Eq, Hash, PartialEq)]
-pub enum GameLoopPhase {
-    Init,
-    PreLoop,
-    PrePhysics,
-    Physics,
-    PostPhysics,
-    Loop,
-    PreFrame,
-    Frame,
-    PostFrame,
-    PostLoop,
-    Finish,
-}
+use super::GameLoopPhase;
 
 pub struct GameLoop;
 

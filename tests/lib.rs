@@ -1,7 +1,7 @@
 
 use pampero_engine::ecs::SystemContext;
 use pampero_engine::ecs::SystemFunction;
-use pampero_engine::GameLoopPhase;
+use pampero_engine::core::GameLoopPhase;
 
 use pampero_engine::App;
 use pampero_engine::components_gen;

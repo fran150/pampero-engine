@@ -4,6 +4,7 @@ mod system;
 mod systems;
 mod functions;
 mod traits;
+mod game_loop_systems;
 
 pub use entity::Entity;
 pub use traits::EntityDrop;
@@ -14,5 +15,4 @@ pub use systems::Systems;
 pub use functions::SystemContext;
 pub use functions::SystemFunction;
 
-// TODO: Does this belong here?
-pub use systems::GameLoopSystems;
+pub use game_loop_systems::GameLoopSystems;
