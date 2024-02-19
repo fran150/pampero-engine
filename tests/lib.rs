@@ -1,4 +1,5 @@
 
+use pampero_engine::core::GameLoop;
 use pampero_engine::ecs::SystemContext;
 use pampero_engine::ecs::SystemFunction;
 use pampero_engine::core::GameLoopPhase;
@@ -56,5 +57,7 @@ fn run_app() {
     app.register_system(GameLoopPhase::Physics, SystemFunction::from(greet_everyone));
     app.register_system(GameLoopPhase::Physics, SystemFunction::from(sit_persons));
 
-    app.run();
+    let mut game_loop = GameLoop::new();
+
+    app.run(&mut game_loop);
 }

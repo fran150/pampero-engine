@@ -12,6 +12,7 @@ pub struct App<T> {
     entities: Entities,
     components: T,
     systems: GameLoopSystems<T>,
+    run: bool,
 }
 
 impl<T> App<T> 
@@ -21,6 +22,7 @@ impl<T> App<T>
             entities: Entities::new(),
             components,
             systems: GameLoopSystems::new(),
+            run: false,
         }
     }
 
@@ -48,8 +50,13 @@ impl<T> App<T>
         self.systems.unregister_system(game_loop_phase, system);
     }
 
-    pub fn run(&mut self) {
-        GameLoop::run(self);
+    pub fn run(&mut self, game_loop: &mut GameLoop<T>) {
+        self.run = true;
+        game_loop.run(self);
+    }
+
+    pub fn stop(&mut self) {
+        self.run = false;
     }
 }
 
