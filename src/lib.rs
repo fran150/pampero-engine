@@ -1,6 +1,6 @@
 use core::{GameLoop, GameLoopPhase};
 
-use ecs::{Entities, EntityDrop, GameLoopSystems, SystemFunction, System};
+use ecs::{Entities, EntityDrop, Systems, SystemFunction, System};
 
 pub mod ecs;
 pub mod core;
@@ -11,7 +11,7 @@ mod macros;
 pub struct App<T> {
     entities: Entities,
     components: T,
-    systems: GameLoopSystems<T>,
+    systems: Systems<T>,
     run: bool,
 }
 
@@ -21,7 +21,7 @@ impl<T> App<T>
         App {
             entities: Entities::new(),
             components,
-            systems: GameLoopSystems::new(),
+            systems: Systems::new(),
             run: false,
         }
     }
