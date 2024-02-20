@@ -15,7 +15,7 @@ pub enum GameLoopPhase {
 }
 
 pub struct GameLoop<T> {
-    handlers: GameLoopEventHandlers<T>,
+    pub handlers: GameLoopEventHandlers<T>,
 }
 
 impl<T> GameLoop<T> {
@@ -23,14 +23,6 @@ impl<T> GameLoop<T> {
         Self {
             handlers: GameLoopEventHandlers::new(),
         }
-    }
-
-    pub fn handlers(&self) -> &GameLoopEventHandlers<T> {
-        &self.handlers
-    }
-
-    pub fn handlers_mut(&mut self) -> &mut GameLoopEventHandlers<T> {
-        &mut self.handlers
     }
 
     pub fn run(&mut self, app: &mut App, ecs: &mut ECS<T>) 

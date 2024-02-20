@@ -7,7 +7,7 @@ pub struct GameLoopEventHandlers<T> {
 }
 
 impl<T> GameLoopEventHandlers<T> {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self {
             handler: HashMap::new(),
         }

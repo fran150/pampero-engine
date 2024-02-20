@@ -1,6 +1,5 @@
 
 use pampero_engine::core::GameLoop;
-use pampero_engine::ecs::Systems;
 use pampero_engine::ecs::ECS;
 use pampero_engine::ecs::SystemContext;
 use pampero_engine::ecs::SystemFunction;
