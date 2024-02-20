@@ -1,5 +1,6 @@
 
 use pampero_engine::core::GameLoop;
+use pampero_engine::ecs::ECSSystem;
 use pampero_engine::ecs::SystemContext;
 use pampero_engine::ecs::SystemFunction;
 use pampero_engine::core::GameLoopPhase;
@@ -44,20 +45,22 @@ fn sit_persons(context: SystemContext<Components>) {
 
 #[test]
 fn run_app() {    
-    let mut app = App::new(Components::new());
+    let mut app = App::new();
+    let components = Components::new();
+    let mut ecs = ECSSystem::new(components);
 
-    let valen = app.entities_mut().spawn_entity();
-    let paksox = app.entities_mut().spawn_entity();
+    let valen = ecs.entities_mut().spawn_entity();
+    let paksox = ecs.entities_mut().spawn_entity();
 
-    app.components_mut().add_name(&valen, Name("Valen".to_string()));
-    app.components_mut().add_name(&paksox, Name("Paksox".to_string()));
+    ecs.components_mut().add_name(&valen, Name("Valen".to_string()));
+    ecs.components_mut().add_name(&paksox, Name("Paksox".to_string()));
 
-    app.components_mut().add_person(&valen, Person());
+    ecs.components_mut().add_person(&valen, Person());
 
-    app.register_system(GameLoopPhase::Physics, SystemFunction::from(greet_everyone));
-    app.register_system(GameLoopPhase::Physics, SystemFunction::from(sit_persons));
+    ecs.systems_mut().register_system(GameLoopPhase::Physics, SystemFunction::from(greet_everyone));
+    ecs.systems_mut().register_system(GameLoopPhase::Physics, SystemFunction::from(sit_persons));
 
     let mut game_loop = GameLoop::new();
 
-    app.run(&mut game_loop);
+    app.run(&mut ecs, &mut game_loop);
 }

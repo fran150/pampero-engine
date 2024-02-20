@@ -1,6 +1,6 @@
 use std::{collections::HashMap, time::Instant};
 
-use crate::{ecs::EntityDrop, event::{Event, GameLoopEventType, TimeStepEventType}, App};
+use crate::{ecs::{ECSSystem, EntityDrop}, event::{Event, GameLoopEventType, TimeStepEventType}, App};
 
 #[derive(Eq, Hash, PartialEq)]
 pub enum GameLoopPhase {
@@ -13,7 +13,7 @@ pub enum GameLoopPhase {
 }
 
 pub struct GameLoopEventHandlers<T> {
-    handler: HashMap<GameLoopEventType, fn(&mut App<T>, &Event)>,
+    handler: HashMap<GameLoopEventType, fn(&mut App, &mut ECSSystem<T>, &Event)>,
 }
 
 impl<T> GameLoopEventHandlers<T> {
@@ -23,7 +23,7 @@ impl<T> GameLoopEventHandlers<T> {
         }
     }
 
-    pub fn set(&mut self, event_type: GameLoopEventType, handler: fn(&mut App<T>, &Event)) {
+    pub fn set(&mut self, event_type: GameLoopEventType, handler: fn(&mut App, &mut ECSSystem<T>, &Event)) {
         self.handler.insert(event_type, handler);
     }
 
@@ -31,10 +31,10 @@ impl<T> GameLoopEventHandlers<T> {
         self.handler.remove(&event_type);
     }
 
-    pub fn call(&mut self, event_type: GameLoopEventType, app: &mut App<T>, t: f64, dt: f64) {
+    pub fn call(&mut self, event_type: GameLoopEventType, app: &mut App, ecs: &mut ECSSystem<T>, t: f64, dt: f64) {
         if let Some(handler) = self.handler.get(&event_type) {
             let event = Event::game_loop_event(event_type, t, dt);
-            handler(app, &event);
+            handler(app, ecs, &event);
         }
     }
 }
@@ -58,7 +58,7 @@ impl<T> GameLoop<T> {
         &mut self.handlers
     }
 
-    pub fn run(&mut self, app: &mut App<T>) 
+    pub fn run(&mut self, app: &mut App, ecs: &mut ECSSystem<T>) 
         where T: EntityDrop {
         const PPS:f64 = 60.0;
         const FPS:f64 = 60.0;
@@ -77,7 +77,7 @@ impl<T> GameLoop<T> {
         let physics_size = 1000.0 / PPS;
         let frame_size = 1000.0 / FPS;
 
-        self.handlers.call(GameLoopEventType::Init, app, t, 0.0);
+        self.handlers.call(GameLoopEventType::Init, app, ecs, t, 0.0);
 
         while app.run {
             let current_time = instant.elapsed().as_millis();            
@@ -89,35 +89,35 @@ impl<T> GameLoop<T> {
             frame_time += dt;
             rate_accumulator += dt;
 
-            self.handlers.call(GameLoopEventType::GameLoop, app, t, dt);
+            self.handlers.call(GameLoopEventType::GameLoop, app, ecs, t, dt);
 
             if physics_time > physics_size {
                 physics_time -= physics_size;
 
                 let event = Event::timestep_event(TimeStepEventType::PhysicStep, t, dt);
 
-                app.systems.call_systems(GameLoopPhase::PrePhysics, &event, &mut app.components, &mut app.entities);
-                app.systems.call_systems(GameLoopPhase::Physics, &event, &mut app.components, &mut app.entities);
-                app.systems.call_systems(GameLoopPhase::PostPhysics, &event, &mut app.components, &mut app.entities);
+                ecs.call_systems(GameLoopPhase::PrePhysics, &event);
+                ecs.call_systems(GameLoopPhase::Physics, &event);
+                ecs.call_systems(GameLoopPhase::PostPhysics, &event);
 
                 physics_step_counter += 1;
             }
 
-            self.handlers.call(GameLoopEventType::GameLoop, app, t, dt);
+            self.handlers.call(GameLoopEventType::GameLoop, app, ecs, t, dt);
 
             if frame_time > frame_size {
                 frame_time -= frame_size;
 
                 let event = Event::timestep_event(TimeStepEventType::FrameStep, t, dt);
 
-                app.systems.call_systems(GameLoopPhase::PreFrame, &event, &mut app.components, &mut app.entities);
-                app.systems.call_systems(GameLoopPhase::Frame, &event, &mut app.components, &mut app.entities);
-                app.systems.call_systems(GameLoopPhase::PostFrame, &event, &mut app.components, &mut app.entities);
-    
+                ecs.call_systems(GameLoopPhase::PreFrame, &event);
+                ecs.call_systems(GameLoopPhase::Frame, &event);
+                ecs.call_systems(GameLoopPhase::PostFrame, &event);
+
                 frame_counter += 1;
             }
 
-            self.handlers.call(GameLoopEventType::PostLoop, app, t, dt);
+            self.handlers.call(GameLoopEventType::PostLoop, app, ecs, t, dt);
 
             if rate_accumulator > 1000.0 {
                 println!("{} PPS - {} FPS", physics_step_counter, frame_counter);
@@ -129,6 +129,6 @@ impl<T> GameLoop<T> {
             }
         }
 
-        self.handlers.call(GameLoopEventType::Finish, app, t, 0.0);
+        self.handlers.call(GameLoopEventType::Finish, app, ecs, t, 0.0);
     }
 }
