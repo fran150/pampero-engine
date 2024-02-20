@@ -1,6 +1,6 @@
 
 use pampero_engine::core::GameLoop;
-use pampero_engine::ecs::ECSSystem;
+use pampero_engine::ecs::ECS;
 use pampero_engine::ecs::SystemContext;
 use pampero_engine::ecs::SystemFunction;
 use pampero_engine::core::GameLoopPhase;
@@ -47,7 +47,7 @@ fn sit_persons(context: SystemContext<Components>) {
 fn run_app() {    
     let mut app = App::new();
     let components = Components::new();
-    let mut ecs = ECSSystem::new(components);
+    let mut ecs = ECS::new(components);
 
     let valen = ecs.entities_mut().spawn_entity();
     let paksox = ecs.entities_mut().spawn_entity();

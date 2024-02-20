@@ -1,6 +1,6 @@
 use core::GameLoop;
 
-use ecs::{ECSSystem, EntityDrop};
+use ecs::{ECS, EntityDrop};
 
 pub mod ecs;
 pub mod core;
@@ -24,7 +24,7 @@ impl App {
         self.run
     }
 
-    pub fn run<T>(&mut self, ecs: &mut ECSSystem<T>, game_loop: &mut GameLoop<T>) 
+    pub fn run<T>(&mut self, ecs: &mut ECS<T>, game_loop: &mut GameLoop<T>) 
         where T: EntityDrop {
         self.run = true;
         game_loop.run(self, ecs);

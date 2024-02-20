@@ -18,13 +18,13 @@ pub use systems::Systems;
 use crate::core::GameLoopPhase;
 use crate::event::Event;
 
-pub struct ECSSystem<T> {
+pub struct ECS<T> {
     entities: Entities,
     components: T,
     systems: Systems<T>,
 }
 
-impl<T> ECSSystem<T> 
+impl<T> ECS<T> 
     where T: EntityDrop {
     pub fn new(components: T) -> Self {
         Self {

@@ -1,6 +1,8 @@
-use std::{collections::HashMap, time::Instant};
+use std::time::Instant;
 
-use crate::{ecs::{ECSSystem, EntityDrop}, event::{Event, GameLoopEventType, TimeStepEventType}, App};
+use crate::{ecs::{ECS, EntityDrop}, event::{Event, GameLoopEventType, TimeStepEventType}, App};
+
+use super::handlers::GameLoopEventHandlers;
 
 #[derive(Eq, Hash, PartialEq)]
 pub enum GameLoopPhase {
@@ -10,33 +12,6 @@ pub enum GameLoopPhase {
     PreFrame,
     Frame,
     PostFrame,
-}
-
-pub struct GameLoopEventHandlers<T> {
-    handler: HashMap<GameLoopEventType, fn(&mut App, &mut ECSSystem<T>, &Event)>,
-}
-
-impl<T> GameLoopEventHandlers<T> {
-    pub fn new() -> Self {
-        Self {
-            handler: HashMap::new(),
-        }
-    }
-
-    pub fn set(&mut self, event_type: GameLoopEventType, handler: fn(&mut App, &mut ECSSystem<T>, &Event)) {
-        self.handler.insert(event_type, handler);
-    }
-
-    pub fn clear(&mut self, event_type: GameLoopEventType) {
-        self.handler.remove(&event_type);
-    }
-
-    pub fn call(&mut self, event_type: GameLoopEventType, app: &mut App, ecs: &mut ECSSystem<T>, t: f64, dt: f64) {
-        if let Some(handler) = self.handler.get(&event_type) {
-            let event = Event::game_loop_event(event_type, t, dt);
-            handler(app, ecs, &event);
-        }
-    }
 }
 
 pub struct GameLoop<T> {
@@ -58,7 +33,7 @@ impl<T> GameLoop<T> {
         &mut self.handlers
     }
 
-    pub fn run(&mut self, app: &mut App, ecs: &mut ECSSystem<T>) 
+    pub fn run(&mut self, app: &mut App, ecs: &mut ECS<T>) 
         where T: EntityDrop {
         const PPS:f64 = 60.0;
         const FPS:f64 = 60.0;
