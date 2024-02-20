@@ -18,10 +18,11 @@ pub use systems::Systems;
 use crate::core::GameLoopPhase;
 use crate::event::Event;
 
+#[non_exhaustive]
 pub struct ECS<T> {
-    entities: Entities,
-    components: T,
-    systems: Systems<T>,
+    pub entities: Entities,
+    pub components: T,
+    pub systems: Systems<T>,
 }
 
 impl<T> ECS<T> 
@@ -32,30 +33,6 @@ impl<T> ECS<T>
             components,
             systems: Systems::new(),
         }
-    }
-
-    pub fn entities(&self) -> &Entities {
-        &self.entities
-    }
-
-    pub fn entities_mut(&mut self) -> &mut Entities {
-        &mut self.entities
-    }
-
-    pub fn components(&self) -> &T {
-        &self.components
-    }
-
-    pub fn components_mut(&mut self) -> &mut T {
-        &mut self.components
-    }
-
-    pub fn systems(&self) -> &Systems<T> {
-        &self.systems
-    }
-
-    pub fn systems_mut(&mut self) -> &mut Systems<T> {
-        &mut self.systems
     }
 
     pub fn call_systems(&mut self, game_loop_phase: GameLoopPhase, event: &Event) {

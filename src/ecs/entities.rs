@@ -5,7 +5,7 @@ use super::{Entity, EntityDrop};
 pub struct Entities(HashSet<Entity>);
 
 impl Entities {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self(HashSet::new())
     }
 

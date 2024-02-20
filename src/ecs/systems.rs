@@ -11,7 +11,7 @@ pub struct Systems<T> {
 }
 
 impl<T> Systems<T> {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Systems {
             systems: HashMap::new(),
         }
