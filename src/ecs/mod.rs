@@ -15,7 +15,7 @@ pub use functions::SystemFunction;
 
 pub use systems::Systems;
 
-use crate::core::GameLoopPhase;
+use crate::core::GameLoopStep;
 use crate::event::Event;
 
 #[non_exhaustive]
@@ -35,7 +35,7 @@ impl<T> ECS<T>
         }
     }
 
-    pub fn call_systems(&mut self, game_loop_phase: GameLoopPhase, event: &Event) {
+    pub fn call_systems(&mut self, game_loop_phase: GameLoopStep, event: &Event) {
         self.systems.call_systems(game_loop_phase, event, &mut self.components, &mut self.entities);
     }
 }

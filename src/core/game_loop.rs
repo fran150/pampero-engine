@@ -5,7 +5,7 @@ use crate::{ecs::{ECS, EntityDrop}, event::{Event, GameLoopEventType, TimeStepEv
 use super::handlers::GameLoopEventHandlers;
 
 #[derive(Eq, Hash, PartialEq)]
-pub enum GameLoopPhase {
+pub enum GameLoopStep {
     PrePhysics,
     Physics,
     PostPhysics,
@@ -63,9 +63,9 @@ impl<T> GameLoop<T> {
 
                 let event = Event::timestep_event(TimeStepEventType::PhysicStep, t, dt);
 
-                ecs.call_systems(GameLoopPhase::PrePhysics, &event);
-                ecs.call_systems(GameLoopPhase::Physics, &event);
-                ecs.call_systems(GameLoopPhase::PostPhysics, &event);
+                ecs.call_systems(GameLoopStep::PrePhysics, &event);
+                ecs.call_systems(GameLoopStep::Physics, &event);
+                ecs.call_systems(GameLoopStep::PostPhysics, &event);
 
                 physics_step_counter += 1;
             }
@@ -77,9 +77,9 @@ impl<T> GameLoop<T> {
 
                 let event = Event::timestep_event(TimeStepEventType::FrameStep, t, dt);
 
-                ecs.call_systems(GameLoopPhase::PreFrame, &event);
-                ecs.call_systems(GameLoopPhase::Frame, &event);
-                ecs.call_systems(GameLoopPhase::PostFrame, &event);
+                ecs.call_systems(GameLoopStep::PreFrame, &event);
+                ecs.call_systems(GameLoopStep::Frame, &event);
+                ecs.call_systems(GameLoopStep::PostFrame, &event);
 
                 frame_counter += 1;
             }

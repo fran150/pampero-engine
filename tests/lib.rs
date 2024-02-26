@@ -3,7 +3,7 @@ use pampero_engine::core::GameLoop;
 use pampero_engine::ecs::ECS;
 use pampero_engine::ecs::SystemContext;
 use pampero_engine::ecs::SystemFunction;
-use pampero_engine::core::GameLoopPhase;
+use pampero_engine::core::GameLoopStep;
 
 use pampero_engine::App;
 use pampero_engine::components_gen;
@@ -13,7 +13,10 @@ pub struct Person();
 
 pub struct Name(String);
 
-components_gen!(person: Person, name: Name);
+components_gen!(
+    person: Person, 
+    name: Name
+);
 
 fn greet_everyone(context: SystemContext<Components>) {
     for entity in context.entities.iter() {
@@ -57,8 +60,8 @@ fn run_app() {
 
     ecs.components.add_person(&valen, Person());
 
-    ecs.systems.register_system(GameLoopPhase::Physics, SystemFunction::from(greet_everyone));
-    ecs.systems.register_system(GameLoopPhase::Physics, SystemFunction::from(sit_persons));
+    ecs.systems.register_system(GameLoopStep::Physics, SystemFunction::from(greet_everyone));
+    ecs.systems.register_system(GameLoopStep::Physics, SystemFunction::from(sit_persons));
 
     let mut game_loop = GameLoop::new();
 

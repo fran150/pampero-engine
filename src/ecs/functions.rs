@@ -9,7 +9,7 @@ pub struct SystemContext<'a, T> {
 }
 
 impl<'a, T> SystemContext<'a, T> {
-    pub fn from(event: &'a Event, components: &'a mut T, entities: &'a mut Entities) -> Self {
+    pub(crate) fn from(event: &'a Event, components: &'a mut T, entities: &'a mut Entities) -> Self {
         SystemContext { event, components, entities }
     }
 }
