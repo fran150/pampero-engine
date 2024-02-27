@@ -1,10 +1,14 @@
 
 use pampero_engine::core::GameLoop;
+use pampero_engine::ecs::Entity;
 use pampero_engine::ecs::ECS;
 use pampero_engine::ecs::SystemContext;
 use pampero_engine::ecs::SystemFunction;
 use pampero_engine::core::GameLoopStep;
 
+use pampero_engine::event::GameLoopEventType;
+use pampero_engine::event::Event;
+use pampero_engine::event::SystemEventType;
 use pampero_engine::App;
 use pampero_engine::components_gen;
 
@@ -13,9 +17,12 @@ pub struct Person();
 
 pub struct Name(String);
 
+pub struct Seated();
+
 components_gen!(
     person: Person, 
-    name: Name
+    name: Name,
+    seated: Seated
 );
 
 fn greet_everyone(context: SystemContext<Components>) {
@@ -28,21 +35,26 @@ fn greet_everyone(context: SystemContext<Components>) {
 
 
 fn sit_persons(context: SystemContext<Components>) {
-    context.entities.iter()
+    let entities: Vec<&Entity> = context.entities.iter()
         .filter(|e| {
             context.components.get_name(e).is_some() && 
-            context.components.get_person(e).is_some()
+            context.components.get_person(e).is_some() &&
+            context.components.get_seated(e).is_none()
         })
-        .for_each(|entity| {
-            let name = context.components.get_name(entity).unwrap();
-            let person = context.components.get_person(entity).unwrap();
-    
-            let mut name = name.borrow_mut();
-    
-            name.0.push_str(" (Seated)");
+        .collect();
+
+    for entity in entities { 
+        let seated = Seated();
+        context.components.add_seated(entity, seated);
         
-            println!("[Type: {:?}] Please {}, sit here!!!", person.borrow_mut(), name.0);
-        });
+        let name = context.components.get_name(entity).unwrap();
+        let person = context.components.get_person(entity).unwrap();
+
+        let mut name = name.borrow_mut();       
+        name.0.push_str(" (Seated)");
+    
+        println!("[Type: {:?}] Please {}, sit here!!!", person.borrow_mut(), name.0);
+    }
 }
 
 
@@ -64,6 +76,14 @@ fn run_app() {
     ecs.systems.register_system(GameLoopStep::Physics, SystemFunction::from(sit_persons));
 
     let mut game_loop = GameLoop::new();
+
+    game_loop.handlers.set(GameLoopEventType::PostLoop, |app, _ecs, event| {
+        if let Event::SystemEvent(SystemEventType::GameLoopEvent { event_type: _, t, dt: _}) = event {
+            if *t > 100.0 {
+                app.stop();
+            }
+        }
+    });
 
     app.run(&mut ecs, &mut game_loop);
 }

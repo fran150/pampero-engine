@@ -30,6 +30,10 @@ impl App {
         game_loop.run(self, ecs);
     }
 
+    pub fn stop(&mut self) {
+        self.run = false;
+    }
+
 }
 
 #[cfg(test)]
