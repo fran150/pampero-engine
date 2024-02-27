@@ -35,26 +35,39 @@ fn greet_everyone(context: SystemContext<Components>) {
 
 
 fn sit_persons(context: SystemContext<Components>) {
-    let entities: Vec<&Entity> = context.entities.iter()
+    let filtered: Vec<&Entity> = context.entities.iter()
         .filter(|e| {
             context.components.get_name(e).is_some() && 
             context.components.get_person(e).is_some() &&
             context.components.get_seated(e).is_none()
-        })
-        .collect();
-
-    for entity in entities { 
-        let seated = Seated();
-        context.components.add_seated(entity, seated);
+        }).collect();
         
-        let name = context.components.get_name(entity).unwrap();
-        let person = context.components.get_person(entity).unwrap();
+    filtered.iter().for_each(| entity | {
+        {        
+            let name = context.components.get_name(entity).unwrap();
+            let person = context.components.get_person(entity).unwrap();
 
-        let mut name = name.borrow_mut();       
-        name.0.push_str(" (Seated)");
-    
-        println!("[Type: {:?}] Please {}, sit here!!!", person.borrow_mut(), name.0);
-    }
+            println!("[Type: {:?}] Please {}, come in!!!", person.borrow(), name.borrow().0);
+        };
+
+        let is_valen = {
+            let mut result = false;
+
+            let name = context.components.get_name(entity).unwrap();
+            let mut name = name.borrow_mut();   
+
+            if name.0 == "Valen" {    
+                name.0.push_str(" (Seated)");
+                result = true;
+            }
+
+            result
+        };
+
+        if is_valen {
+            context.components.add_seated(entity, Seated());
+        }
+    });
 }
 
 
