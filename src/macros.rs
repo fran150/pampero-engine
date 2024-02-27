@@ -4,7 +4,7 @@ macro_rules! components_gen {
         paste::paste! {
             pub struct Components {
             $(
-                pub [<$name _components>]: std::collections::HashMap<$crate::ecs::Entity, std::cell::RefCell<$type>>,
+                pub [<$name _components>]: std::collections::HashMap<$crate::ecs::Entity, $type>,
             )*
             }
 
@@ -19,12 +19,16 @@ macro_rules! components_gen {
 
                 $(
                     pub fn [<add_ $name>](&mut self, entity: &$crate::ecs::Entity, component: $type) {
-                        self.[<$name _components>].insert(entity.clone(), std::cell::RefCell::new(component));
+                        self.[<$name _components>].insert(entity.clone(), component);
                     }
 
-                    pub fn [<get_ $name>](&self, entity: &$crate::ecs::Entity) -> Option<&std::cell::RefCell<$type>> {
+                    pub fn [<get_ $name>](&self, entity: &$crate::ecs::Entity) -> Option<&$type> {
                         self.[<$name _components>].get(entity)
-                    }                
+                    } 
+
+                    pub fn [<get_ $name _mut>](&mut self, entity: &$crate::ecs::Entity) -> Option<&mut $type> {
+                        self.[<$name _components>].get_mut(entity)
+                    }                                      
                 )*
             }
 

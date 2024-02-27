@@ -19,16 +19,19 @@ pub struct Name(String);
 
 pub struct Seated();
 
+pub struct Inside();
+
 components_gen!(
     person: Person, 
     name: Name,
-    seated: Seated
+    seated: Seated,
+    inside: Inside
 );
 
 fn greet_everyone(context: SystemContext<Components>) {
     for entity in context.entities.iter() {
         if let Some(name) = context.components.get_name(entity) {
-            println!("Hello! Welcome {}", name.borrow().0);
+            println!("Hello! Welcome {}", name.0);
         }
     }
 }
@@ -39,7 +42,8 @@ fn sit_persons(context: SystemContext<Components>) {
         .filter(|e| {
             context.components.get_name(e).is_some() && 
             context.components.get_person(e).is_some() &&
-            context.components.get_seated(e).is_none()
+            context.components.get_seated(e).is_none() &&
+            context.components.get_inside(e).is_none()
         }).collect();
         
     filtered.iter().for_each(| entity | {
@@ -47,14 +51,13 @@ fn sit_persons(context: SystemContext<Components>) {
             let name = context.components.get_name(entity).unwrap();
             let person = context.components.get_person(entity).unwrap();
 
-            println!("[Type: {:?}] Please {}, come in!!!", person.borrow(), name.borrow().0);
+            println!("[Type: {:?}] Please {}, come in!!!", person, name.0);
         };
 
         let is_valen = {
             let mut result = false;
 
-            let name = context.components.get_name(entity).unwrap();
-            let mut name = name.borrow_mut();   
+            let name = context.components.get_name_mut(entity).unwrap();
 
             if name.0 == "Valen" {    
                 name.0.push_str(" (Seated)");
@@ -66,6 +69,8 @@ fn sit_persons(context: SystemContext<Components>) {
 
         if is_valen {
             context.components.add_seated(entity, Seated());
+        } else {
+            context.components.add_inside(entity, Inside());
         }
     });
 }
@@ -79,11 +84,14 @@ fn run_app() {
 
     let valen = ecs.entities.spawn_entity();
     let paksox = ecs.entities.spawn_entity();
+    let otro = ecs.entities.spawn_entity();
 
     ecs.components.add_name(&valen, Name("Valen".to_string()));
+    ecs.components.add_name(&otro, Name("Otro".to_string()));
     ecs.components.add_name(&paksox, Name("Paksox".to_string()));
 
     ecs.components.add_person(&valen, Person());
+    ecs.components.add_person(&otro, Person());
 
     ecs.systems.register_system(GameLoopStep::Physics, SystemFunction::from(greet_everyone));
     ecs.systems.register_system(GameLoopStep::Physics, SystemFunction::from(sit_persons));
