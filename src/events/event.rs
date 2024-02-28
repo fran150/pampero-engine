@@ -20,7 +20,7 @@ pub enum TimeStepEventType {
     FrameStep,
 }
 
-pub enum SystemEventType {
+pub enum SystemEvents {
     GameLoopEvent {
         event_type: GameLoopEventType,
         t: f64,
@@ -40,20 +40,20 @@ pub enum SystemEventType {
 }
 
 pub enum Event {
-    SystemEvent(SystemEventType),
+    SystemEvent(SystemEvents),
     UserEvent(),
 }
 
 impl Event {
     pub fn game_loop_event(event_type: GameLoopEventType, t: f64, dt: f64) -> Event {
-        Event::SystemEvent(SystemEventType::GameLoopEvent { event_type, t, dt })
+        Event::SystemEvent(SystemEvents::GameLoopEvent { event_type, t, dt })
     }
 
     pub fn timestep_event(event_type: TimeStepEventType, t: f64, dt: f64) -> Event {
-        Event::SystemEvent(SystemEventType::TimeStepEvent { event_type, t, dt })
+        Event::SystemEvent(SystemEvents::TimeStepEvent { event_type, t, dt })
     }
 
     pub fn keyboard_event(event_type: KeyboardEventType, key: char, t: f64, dt: f64) -> Event {
-        Event::SystemEvent(SystemEventType::KeyboardEvent { event_type, key, t, dt })
+        Event::SystemEvent(SystemEvents::KeyboardEvent { event_type, key, t, dt })
     }
 }

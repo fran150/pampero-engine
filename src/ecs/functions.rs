@@ -1,4 +1,4 @@
-use crate::event::Event;
+use crate::events::Event;
 
 use super::Entities;
 

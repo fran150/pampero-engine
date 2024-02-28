@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use crate::{ecs::{ECS, EntityDrop}, event::{Event, GameLoopEventType, TimeStepEventType}, App};
+use crate::{ecs::{ECS, EntityDrop}, events::{Event, GameLoopEventType, TimeStepEventType}, App};
 
 use super::handlers::GameLoopEventHandlers;
 

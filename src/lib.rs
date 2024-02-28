@@ -4,7 +4,7 @@ use ecs::{ECS, EntityDrop};
 
 pub mod ecs;
 pub mod core;
-pub mod event;
+pub mod events;
 
 mod macros;
 

@@ -16,7 +16,7 @@ pub use functions::SystemFunction;
 pub use systems::Systems;
 
 use crate::core::GameLoopStep;
-use crate::event::Event;
+use crate::events::Event;
 
 #[non_exhaustive]
 pub struct ECS<T> {

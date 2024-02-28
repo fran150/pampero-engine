@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{ecs::ECS, event::{Event, GameLoopEventType}, App};
+use crate::{ecs::ECS, events::{Event, GameLoopEventType}, App};
 
 pub struct GameLoopEventHandlers<T> {
     handler: HashMap<GameLoopEventType, fn(&mut App, &mut ECS<T>, &Event)>,

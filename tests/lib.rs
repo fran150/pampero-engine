@@ -6,9 +6,9 @@ use pampero_engine::ecs::SystemContext;
 use pampero_engine::ecs::SystemFunction;
 use pampero_engine::core::GameLoopStep;
 
-use pampero_engine::event::GameLoopEventType;
-use pampero_engine::event::Event;
-use pampero_engine::event::SystemEventType;
+use pampero_engine::events::GameLoopEventType;
+use pampero_engine::events::Event;
+use pampero_engine::events::SystemEvents;
 use pampero_engine::App;
 use pampero_engine::components_gen;
 
@@ -99,7 +99,7 @@ fn run_app() {
     let mut game_loop = GameLoop::new();
 
     game_loop.handlers.set(GameLoopEventType::PostLoop, |app, _ecs, event| {
-        if let Event::SystemEvent(SystemEventType::GameLoopEvent { event_type: _, t, dt: _}) = event {
+        if let Event::SystemEvent(SystemEvents::GameLoopEvent { event_type: _, t, dt: _}) = event {
             if *t > 100.0 {
                 app.stop();
             }

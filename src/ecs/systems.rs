@@ -4,7 +4,7 @@ use crate::core::GameLoopStep;
 
 use super::{Entities, System, SystemContext, SystemFunction };
 
-use crate::event::Event;
+use crate::events::Event;
 
 pub struct Systems<T> {
     systems: HashMap<GameLoopStep, HashMap<System, SystemFunction<T>>>,
