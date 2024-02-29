@@ -4,6 +4,12 @@ pub enum GameLoopEventType {
     PreLoop,
     GameLoop,
     PostLoop,
+    PrePhysics,
+    Physics,
+    PostPhysics,
+    PreFrame,
+    Frame,
+    PostFrame,
     Finish
 }
 

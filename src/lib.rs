@@ -8,14 +8,17 @@ pub mod events;
 
 mod macros;
 
-pub struct App {
+pub struct App<T> {
     run: bool,
+    pub ecs: ECS<T>
 }
 
-impl App {
+impl<T> App<T> {
     
-    pub fn new() -> Self {
+    pub fn new(components: T) -> Self
+        where T: EntityDrop {
         App {
+            ecs: ECS::new(components),
             run: false,
         }
     }
@@ -24,10 +27,10 @@ impl App {
         self.run
     }
 
-    pub fn run<T>(&mut self, ecs: &mut ECS<T>, game_loop: &mut GameLoop<T>) 
+    pub fn run(&mut self, game_loop: &mut GameLoop<T>) 
         where T: EntityDrop {
         self.run = true;
-        game_loop.run(self, ecs);
+        game_loop.run(self);
     }
 
     pub fn stop(&mut self) {

@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use crate::{ecs::ECS, events::{Event, GameLoopEventType}, App};
+use crate::{events::{Event, GameLoopEventType}, App};
 
 pub struct GameLoopEventHandlers<T> {
-    handler: HashMap<GameLoopEventType, fn(&mut App, &mut ECS<T>, &Event)>,
+    handler: HashMap<GameLoopEventType, fn(&mut App<T>, &Event)>,
 }
 
 impl<T> GameLoopEventHandlers<T> {
@@ -13,7 +13,7 @@ impl<T> GameLoopEventHandlers<T> {
         }
     }
 
-    pub fn set(&mut self, event_type: GameLoopEventType, handler: fn(&mut App, &mut ECS<T>, &Event)) {
+    pub fn set(&mut self, event_type: GameLoopEventType, handler: fn(&mut App<T>, &Event)) {
         self.handler.insert(event_type, handler);
     }
 
@@ -21,10 +21,10 @@ impl<T> GameLoopEventHandlers<T> {
         self.handler.remove(&event_type);
     }
 
-    pub fn call(&mut self, event_type: GameLoopEventType, app: &mut App, ecs: &mut ECS<T>, t: f64, dt: f64) {
+    pub fn call(&mut self, event_type: GameLoopEventType, app: &mut App<T>, t: f64, dt: f64) {
         if let Some(handler) = self.handler.get(&event_type) {
             let event = Event::game_loop_event(event_type, t, dt);
-            handler(app, ecs, &event);
+            handler(app, &event);
         }
     }
 }

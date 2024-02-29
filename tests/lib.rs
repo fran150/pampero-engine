@@ -1,11 +1,8 @@
 
 use pampero_engine::core::GameLoop;
 use pampero_engine::ecs::Entity;
-use pampero_engine::ecs::ECS;
 use pampero_engine::ecs::SystemContext;
 use pampero_engine::ecs::SystemFunction;
-use pampero_engine::core::GameLoopStep;
-
 use pampero_engine::events::GameLoopEventType;
 use pampero_engine::events::Event;
 use pampero_engine::events::SystemEvents;
@@ -75,30 +72,36 @@ fn sit_persons(context: SystemContext<Components>) {
     });
 }
 
+fn run_systems(app: &mut App<Components>, event: &Event) {
+    app.ecs.systems.call_systems("Default".to_string(), event, &mut app.ecs.components, &mut app.ecs.entities);
+}
 
 #[test]
-fn run_app() {    
-    let mut app = App::new();
+fn run_app() {   
+    let default_group = "Default";
+
     let components = Components::new();
-    let mut ecs = ECS::new(components);
+    let mut app = App::new(components);
 
-    let valen = ecs.entities.spawn_entity();
-    let paksox = ecs.entities.spawn_entity();
-    let otro = ecs.entities.spawn_entity();
+    let valen = app.ecs.entities.spawn_entity();
+    let paksox = app.ecs.entities.spawn_entity();
+    let otro = app.ecs.entities.spawn_entity();
 
-    ecs.components.add_name(&valen, Name("Valen".to_string()));
-    ecs.components.add_name(&otro, Name("Otro".to_string()));
-    ecs.components.add_name(&paksox, Name("Paksox".to_string()));
+    app.ecs.components.add_name(&valen, Name("Valen".to_string()));
+    app.ecs.components.add_name(&otro, Name("Otro".to_string()));
+    app.ecs.components.add_name(&paksox, Name("Paksox".to_string()));
 
-    ecs.components.add_person(&valen, Person());
-    ecs.components.add_person(&otro, Person());
+    app.ecs.components.add_person(&valen, Person());
+    app.ecs.components.add_person(&otro, Person());
 
-    ecs.systems.register_system(GameLoopStep::Physics, SystemFunction::from(greet_everyone));
-    ecs.systems.register_system(GameLoopStep::Physics, SystemFunction::from(sit_persons));
+    app.ecs.systems.register_system(default_group.to_string(), SystemFunction::from(greet_everyone));
+    app.ecs.systems.register_system(default_group.to_string(), SystemFunction::from(sit_persons));
 
     let mut game_loop = GameLoop::new();
 
-    game_loop.handlers.set(GameLoopEventType::PostLoop, |app, _ecs, event| {
+    game_loop.handlers.set(GameLoopEventType::Physics, run_systems);
+
+    game_loop.handlers.set(GameLoopEventType::PostLoop, |app, event| {
         if let Event::SystemEvent(SystemEvents::GameLoopEvent { event_type: _, t, dt: _}) = event {
             if *t > 100.0 {
                 app.stop();
@@ -106,5 +109,5 @@ fn run_app() {
         }
     });
 
-    app.run(&mut ecs, &mut game_loop);
+    app.run(&mut game_loop);
 }
