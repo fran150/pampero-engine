@@ -3,4 +3,7 @@ mod handlers;
 
 pub use game_loop::GameLoop;
 pub use game_loop::GameLoopStep;
+
+pub use handlers::GameLoopContext;
+pub use handlers::GameLoopHandler;
 pub use handlers::GameLoopEventHandlers;

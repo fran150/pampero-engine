@@ -1,5 +1,7 @@
 
 use pampero_engine::core::GameLoop;
+use pampero_engine::core::GameLoopContext;
+use pampero_engine::core::GameLoopHandler;
 use pampero_engine::ecs::Entity;
 use pampero_engine::ecs::SystemContext;
 use pampero_engine::ecs::SystemFunction;
@@ -24,15 +26,6 @@ components_gen!(
     seated: Seated,
     inside: Inside
 );
-
-fn greet_everyone(context: SystemContext<Components>) {
-    for entity in context.entities.iter() {
-        if let Some(name) = context.components.get_name(entity) {
-            println!("Hello! Welcome {}", name.0);
-        }
-    }
-}
-
 
 fn sit_persons(context: SystemContext<Components>) {
     let filtered: Vec<&Entity> = context.entities.iter()
@@ -72,8 +65,8 @@ fn sit_persons(context: SystemContext<Components>) {
     });
 }
 
-fn run_systems(app: &mut App<Components>, event: &Event) {
-    app.ecs.systems.call_systems("Default".to_string(), event, &mut app.ecs.components, &mut app.ecs.entities);
+fn run_systems(context: GameLoopContext<Components>) {
+    context.app.ecs.systems.call_systems("Default".to_string(), context.event, &mut context.app.ecs.components, &mut context.app.ecs.entities);
 }
 
 #[test]
@@ -94,20 +87,27 @@ fn run_app() {
     app.ecs.components.add_person(&valen, Person());
     app.ecs.components.add_person(&otro, Person());
 
-    app.ecs.systems.register_system(default_group.to_string(), SystemFunction::from(greet_everyone));
+    app.ecs.systems.register_system(default_group.to_string(), SystemFunction::from(|context| {
+        for entity in context.entities.iter() {
+            if let Some(name) = context.components.get_name(entity) {
+                println!("Hello! Welcome {}", name.0);
+            }
+        }
+    }));
+
     app.ecs.systems.register_system(default_group.to_string(), SystemFunction::from(sit_persons));
 
     let mut game_loop = GameLoop::new();
 
-    game_loop.handlers.set(GameLoopEventType::Physics, run_systems);
+    game_loop.handlers.set(GameLoopEventType::Physics, GameLoopHandler::from(run_systems));
 
-    game_loop.handlers.set(GameLoopEventType::PostLoop, |app, event| {
-        if let Event::SystemEvent(SystemEvents::GameLoopEvent { event_type: _, t, dt: _}) = event {
+    game_loop.handlers.set(GameLoopEventType::PostLoop, GameLoopHandler::from(|context| {
+        if let Event::SystemEvent(SystemEvents::GameLoopEvent { event_type: _, t, dt: _}) = context.event {
             if *t > 100.0 {
-                app.stop();
+                context.app.stop();
             }
         }
-    });
+    }));
 
     app.run(&mut game_loop);
 }

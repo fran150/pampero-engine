@@ -14,6 +14,8 @@ impl<'a, T> SystemContext<'a, T> {
     }
 }
 
+
+
 pub struct SystemFunction<T>(fn(context: SystemContext<T>));
 
 impl<T> SystemFunction<T> {
