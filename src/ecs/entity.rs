@@ -43,3 +43,7 @@ impl Entity {
         Self(Uuid::new_v4())
     }
 }
+
+pub trait EntityDrop {
+    fn remove_entity_components(&mut self, entity: &Entity);
+}

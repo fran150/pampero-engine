@@ -1,8 +1,23 @@
 use std::collections::HashMap;
 
-use super::{Entities, System, SystemContext };
+use super::{
+    Entities, 
+    System 
+};
 
 use crate::events::Event;
+
+pub struct SystemContext<'a, T> {
+    pub event: &'a Event,
+    pub components: &'a mut T,
+    pub entities: &'a mut Entities,
+}
+
+impl<'a, T> SystemContext<'a, T> {
+    pub(crate) fn from(event: &'a Event, components: &'a mut T, entities: &'a mut Entities) -> Self {
+        SystemContext { event, components, entities }
+    }
+}
 
 pub struct Systems<T> {
     systems: HashMap<String, HashMap<System, fn(SystemContext<T>)>>,
