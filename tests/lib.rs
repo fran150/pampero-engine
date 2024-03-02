@@ -1,7 +1,6 @@
 
 use pampero_engine::core::GameLoop;
 use pampero_engine::core::GameLoopContext;
-use pampero_engine::core::GameLoopHandler;
 use pampero_engine::ecs::Entity;
 use pampero_engine::ecs::SystemContext;
 use pampero_engine::events::GameLoopEventType;
@@ -98,15 +97,15 @@ fn run_app() {
 
     let mut game_loop = GameLoop::new();
 
-    game_loop.handlers.set(GameLoopEventType::Physics, GameLoopHandler::from(run_systems));
+    game_loop.handlers.set(GameLoopEventType::Physics, run_systems);
 
-    game_loop.handlers.set(GameLoopEventType::PostLoop, GameLoopHandler::from(|context| {
+    game_loop.handlers.set(GameLoopEventType::PostLoop, |context| {
         if let Event::SystemEvent(SystemEvents::GameLoopEvent { event_type: _, t, dt: _}) = context.event {
             if *t > 100.0 {
                 context.app.stop();
             }
         }
-    }));
+    });
 
     app.run(&mut game_loop);
 }

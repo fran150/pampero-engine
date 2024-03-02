@@ -16,20 +16,8 @@ impl<'a, T> GameLoopContext<'a, T> {
     }
 }
 
-pub struct GameLoopHandler<T>(fn(GameLoopContext<T>));
-
-impl<T> GameLoopHandler<T> {
-    pub fn from(handler: fn(GameLoopContext<T>)) -> Self {
-        Self(handler)
-    }
-
-    pub fn call(&self, context: GameLoopContext<T>) {
-        (self.0)(context)
-    }
-}
-
 pub struct GameLoopEventHandlers<T> {
-    handler: HashMap<GameLoopEventType, GameLoopHandler<T>>,
+    handler: HashMap<GameLoopEventType, fn(GameLoopContext<T>)>,
 }
 
 impl<T> GameLoopEventHandlers<T> {
@@ -39,7 +27,7 @@ impl<T> GameLoopEventHandlers<T> {
         }
     }
 
-    pub fn set(&mut self, event_type: GameLoopEventType, handler: GameLoopHandler<T>) {
+    pub fn set(&mut self, event_type: GameLoopEventType, handler: fn(GameLoopContext<T>)) {
         self.handler.insert(event_type, handler);
     }
 
@@ -51,7 +39,7 @@ impl<T> GameLoopEventHandlers<T> {
         if let Some(handler) = self.handler.get(&event_type) {
             let event = Event::game_loop_event(event_type, t, dt);
             let context = GameLoopContext::from(app, &event);
-            handler.call(context);
+            handler(context);
         }
     }
 }
