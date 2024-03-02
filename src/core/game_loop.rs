@@ -1,18 +1,11 @@
 use std::time::Instant;
 
-use crate::{events::GameLoopEventType, App};
+use crate::{
+    events::GameLoopEventType, 
+    App
+};
 
 use super::handlers::GameLoopEventHandlers;
-
-#[derive(Eq, Hash, PartialEq)]
-pub enum GameLoopStep {
-    PrePhysics,
-    Physics,
-    PostPhysics,
-    PreFrame,
-    Frame,
-    PostFrame,
-}
 
 pub struct GameLoop<T> {
     pub handlers: GameLoopEventHandlers<T>,
