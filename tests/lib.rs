@@ -4,7 +4,6 @@ use pampero_engine::core::GameLoopContext;
 use pampero_engine::core::GameLoopHandler;
 use pampero_engine::ecs::Entity;
 use pampero_engine::ecs::SystemContext;
-use pampero_engine::ecs::SystemFunction;
 use pampero_engine::events::GameLoopEventType;
 use pampero_engine::events::Event;
 use pampero_engine::events::SystemEvents;
@@ -87,15 +86,15 @@ fn run_app() {
     app.ecs.components.add_person(&valen, Person());
     app.ecs.components.add_person(&otro, Person());
 
-    app.ecs.systems.register_system(default_group.to_string(), SystemFunction::from(|context| {
+    app.ecs.systems.register_system(default_group.to_string(), |context| {
         for entity in context.entities.iter() {
             if let Some(name) = context.components.get_name(entity) {
                 println!("Hello! Welcome {}", name.0);
             }
         }
-    }));
+    });
 
-    app.ecs.systems.register_system(default_group.to_string(), SystemFunction::from(sit_persons));
+    app.ecs.systems.register_system(default_group.to_string(), sit_persons);
 
     let mut game_loop = GameLoop::new();
 

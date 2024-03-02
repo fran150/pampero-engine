@@ -11,8 +11,6 @@ pub use entities::Entities;
 
 pub use system::System;
 pub use functions::SystemContext;
-pub use functions::SystemFunction;
-
 pub use systems::Systems;
 
 #[non_exhaustive]

@@ -13,17 +13,3 @@ impl<'a, T> SystemContext<'a, T> {
         SystemContext { event, components, entities }
     }
 }
-
-
-
-pub struct SystemFunction<T>(fn(context: SystemContext<T>));
-
-impl<T> SystemFunction<T> {
-    pub fn from(funtion: fn(SystemContext<T>)) -> Self {
-        SystemFunction(funtion)
-    }
-
-    pub fn call(&self, context: SystemContext<T>) {
-        (self.0)(context);
-    }
-}
