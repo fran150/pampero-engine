@@ -1,7 +1,7 @@
 use std::time::Instant;
 
 use crate::{
-    events::GameLoopEventType, 
+    events::GameLoopEventPhase, 
     App
 };
 
@@ -36,7 +36,7 @@ impl<T> GameLoop<T> {
         let physics_size = 1000.0 / PPS;
         let frame_size = 1000.0 / FPS;
 
-        self.handlers.call(GameLoopEventType::Init, app, t, 0.0);
+        self.handlers.execute(GameLoopEventPhase::Init, app, t, 0.0);
 
         while app.run {
             let current_time = instant.elapsed().as_millis();            
@@ -48,32 +48,32 @@ impl<T> GameLoop<T> {
             frame_time += dt;
             rate_accumulator += dt;
 
-            self.handlers.call(GameLoopEventType::GameLoop, app, t, dt);
+            self.handlers.execute(GameLoopEventPhase::GameLoop, app, t, dt);
 
             if physics_time > physics_size {
                 physics_time -= physics_size;
 
-                self.handlers.call(GameLoopEventType::PrePhysics, app, t, dt);
-                self.handlers.call(GameLoopEventType::Physics, app, t, dt);
-                self.handlers.call(GameLoopEventType::PostPhysics, app, t, dt);
+                self.handlers.execute(GameLoopEventPhase::PrePhysics, app, t, dt);
+                self.handlers.execute(GameLoopEventPhase::Physics, app, t, dt);
+                self.handlers.execute(GameLoopEventPhase::PostPhysics, app, t, dt);
 
                 physics_step_counter += 1;
             }
 
-            self.handlers.call(GameLoopEventType::GameLoop, app, t, dt);
+            self.handlers.execute(GameLoopEventPhase::GameLoop, app, t, dt);
 
             if frame_time > frame_size {
                 frame_time -= frame_size;
 
-                self.handlers.call(GameLoopEventType::PreFrame, app, t, dt);
-                self.handlers.call(GameLoopEventType::Frame, app, t, dt);
-                self.handlers.call(GameLoopEventType::PostFrame, app, t, dt);
+                self.handlers.execute(GameLoopEventPhase::PreFrame, app, t, dt);
+                self.handlers.execute(GameLoopEventPhase::Frame, app, t, dt);
+                self.handlers.execute(GameLoopEventPhase::PostFrame, app, t, dt);
 
 
                 frame_counter += 1;
             }
 
-            self.handlers.call(GameLoopEventType::PostLoop, app, t, dt);
+            self.handlers.execute(GameLoopEventPhase::PostLoop, app, t, dt);
 
             if rate_accumulator > 1000.0 {
                 println!("{} PPS - {} FPS", physics_step_counter, frame_counter);
@@ -85,6 +85,6 @@ impl<T> GameLoop<T> {
             }
         }
 
-        self.handlers.call(GameLoopEventType::Finish, app, t, 0.0);
+        self.handlers.execute(GameLoopEventPhase::Finish, app, t, 0.0);
     }
 }

@@ -1,33 +1,33 @@
 #[macro_export]
-macro_rules! components_gen {
-    ( $( $name:ident: $type:ty ),* ) => {
+macro_rules! generate_components_struct {
+    ( $struct_name:ident, $( $component_name:ident: $type:ty ),* ) => {
         paste::paste! {
-            pub struct Components {
+            pub struct $struct_name {
             $(
-                pub [<$name _components>]: std::collections::HashMap<$crate::ecs::Entity, $type>,
+                pub [<$component_name _components>]: std::collections::HashMap<$crate::ecs::Entity, $type>,
             )*
             }
 
-            impl Components {
-                pub fn new() -> Components {
-                    Components {
+            impl $struct_name {
+                pub fn new() -> Self {
+                    $struct_name {
                         $(
-                            [<$name _components>]: std::collections::HashMap::new(),
+                            [<$component_name _components>]: std::collections::HashMap::new(),
                         )*
                     }
                 }
 
                 $(
-                    pub fn [<add_ $name>](&mut self, entity: &$crate::ecs::Entity, component: $type) {
-                        self.[<$name _components>].insert(entity.clone(), component);
+                    pub fn [<add_ $component_name>](&mut self, entity: &$crate::ecs::Entity, component: $type) {
+                        self.[<$component_name _components>].insert(entity.clone(), component);
                     }
 
-                    pub fn [<get_ $name>](&self, entity: &$crate::ecs::Entity) -> Option<&$type> {
-                        self.[<$name _components>].get(entity)
+                    pub fn [<get_ $component_name>](&self, entity: &$crate::ecs::Entity) -> Option<&$type> {
+                        self.[<$component_name _components>].get(entity)
                     } 
 
-                    pub fn [<get_ $name _mut>](&mut self, entity: &$crate::ecs::Entity) -> Option<&mut $type> {
-                        self.[<$name _components>].get_mut(entity)
+                    pub fn [<get_ $component_name _mut>](&mut self, entity: &$crate::ecs::Entity) -> Option<&mut $type> {
+                        self.[<$component_name _components>].get_mut(entity)
                     }                                      
                 )*
             }
@@ -35,7 +35,7 @@ macro_rules! components_gen {
             impl $crate::ecs::EntityDrop for Components {
                 fn remove_entity_components(&mut self, entity: &$crate::ecs::Entity) {
                     $(
-                        self.[<$name _components>].remove(entity);
+                        self.[<$component_name _components>].remove(entity);
                     )*
                 }
             }

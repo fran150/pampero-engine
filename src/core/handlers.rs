@@ -1,6 +1,12 @@
 use std::collections::HashMap;
 
-use crate::{events::{Event, GameLoopEventType}, App};
+use crate::{
+    events::{
+        Event, 
+        GameLoopEventPhase
+    }, 
+    App
+};
 
 pub struct GameLoopContext<'a, T> {
     pub app: &'a mut App<T>, 
@@ -17,7 +23,7 @@ impl<'a, T> GameLoopContext<'a, T> {
 }
 
 pub struct GameLoopEventHandlers<T> {
-    handler: HashMap<GameLoopEventType, fn(GameLoopContext<T>)>,
+    handler: HashMap<GameLoopEventPhase, fn(GameLoopContext<T>)>,
 }
 
 impl<T> GameLoopEventHandlers<T> {
@@ -27,18 +33,19 @@ impl<T> GameLoopEventHandlers<T> {
         }
     }
 
-    pub fn set(&mut self, event_type: GameLoopEventType, handler: fn(GameLoopContext<T>)) {
-        self.handler.insert(event_type, handler);
+    pub fn set(&mut self, phase: GameLoopEventPhase, handler: fn(GameLoopContext<T>)) {
+        self.handler.insert(phase, handler);
     }
 
-    pub fn clear(&mut self, event_type: GameLoopEventType) {
-        self.handler.remove(&event_type);
+    pub fn clear(&mut self, phase: GameLoopEventPhase) {
+        self.handler.remove(&phase);
     }
 
-    pub fn call(&mut self, event_type: GameLoopEventType, app: &mut App<T>, t: f64, dt: f64) {
-        if let Some(handler) = self.handler.get(&event_type) {
-            let event = Event::game_loop_event(event_type, t, dt);
+    pub(crate) fn execute(&mut self, phase: GameLoopEventPhase, app: &mut App<T>, t: f64, dt: f64) {
+        if let Some(handler) = self.handler.get(&phase) {
+            let event = Event::game_loop_event(phase, t, dt);
             let context = GameLoopContext::from(app, &event);
+
             handler(context);
         }
     }

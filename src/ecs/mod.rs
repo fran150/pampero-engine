@@ -1,3 +1,5 @@
+use crate::events::Event;
+
 mod entity;
 mod entities;
 mod system;
@@ -26,5 +28,9 @@ impl<T> ECS<T>
             components,
             systems: Systems::new(),
         }
+    }
+
+    pub fn run_systems(&mut self, group: String, event: &Event) {
+        self.systems.call(group, event, &mut self.components, &mut self.entities);
     }
 }

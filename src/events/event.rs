@@ -1,5 +1,5 @@
 #[derive(Eq, Hash, PartialEq)]
-pub enum GameLoopEventType {
+pub enum GameLoopEventPhase {
     Init,
     PreLoop,
     GameLoop,
@@ -28,7 +28,7 @@ pub enum TimeStepEventType {
 
 pub enum SystemEvents {
     GameLoopEvent {
-        event_type: GameLoopEventType,
+        event_type: GameLoopEventPhase,
         t: f64,
         dt: f64,
     },
@@ -51,7 +51,7 @@ pub enum Event {
 }
 
 impl Event {
-    pub fn game_loop_event(event_type: GameLoopEventType, t: f64, dt: f64) -> Event {
+    pub fn game_loop_event(event_type: GameLoopEventPhase, t: f64, dt: f64) -> Event {
         Event::SystemEvent(SystemEvents::GameLoopEvent { event_type, t, dt })
     }
 

@@ -1,6 +1,9 @@
 use core::GameLoop;
 
-use ecs::{ECS, EntityDrop};
+use ecs::{
+    ECS, 
+    EntityDrop
+};
 
 pub mod ecs;
 pub mod core;

@@ -1,6 +1,9 @@
 use std::collections::HashSet;
 
-use super::{Entity, EntityDrop};
+use super::{
+    Entity, 
+    EntityDrop
+};
 
 ///
 /// Represents a group of [`Entity`] objects. It is normally accessed through the [`entities`](crate::ecs::ECS::entities)

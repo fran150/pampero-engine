@@ -1,13 +1,18 @@
 
-use pampero_engine::core::GameLoop;
-use pampero_engine::core::GameLoopContext;
-use pampero_engine::ecs::Entity;
-use pampero_engine::ecs::SystemContext;
-use pampero_engine::events::GameLoopEventType;
-use pampero_engine::events::Event;
-use pampero_engine::events::SystemEvents;
-use pampero_engine::App;
-use pampero_engine::components_gen;
+use pampero_engine::{
+    core::GameLoop,
+    ecs::{
+        Entity,
+        SystemContext
+    },
+    events::{
+        Event,
+        GameLoopEventPhase,
+        SystemEvents
+    },
+    App,
+    generate_components_struct
+};
 
 #[derive(Debug)]
 pub struct Person();
@@ -18,7 +23,8 @@ pub struct Seated();
 
 pub struct Inside();
 
-components_gen!(
+generate_components_struct!(
+    Components,
     person: Person, 
     name: Name,
     seated: Seated,
@@ -63,10 +69,6 @@ fn sit_persons(context: SystemContext<Components>) {
     });
 }
 
-fn run_systems(context: GameLoopContext<Components>) {
-    context.app.ecs.systems.call_systems("Default".to_string(), context.event, &mut context.app.ecs.components, &mut context.app.ecs.entities);
-}
-
 #[test]
 fn run_app() {   
     let default_group = "Default";
@@ -97,9 +99,11 @@ fn run_app() {
 
     let mut game_loop = GameLoop::new();
 
-    game_loop.handlers.set(GameLoopEventType::Physics, run_systems);
+    game_loop.handlers.set(GameLoopEventPhase::Physics, |context| {
+        context.app.ecs.run_systems("Default".to_string(), context.event);
+    });
 
-    game_loop.handlers.set(GameLoopEventType::PostLoop, |context| {
+    game_loop.handlers.set(GameLoopEventPhase::PostLoop, |context| {
         if let Event::SystemEvent(SystemEvents::GameLoopEvent { event_type: _, t, dt: _}) = context.event {
             if *t > 100.0 {
                 context.app.stop();
