@@ -1,12 +1,14 @@
 use uuid::Uuid;
 
 ///
-/// An entity represents a general-purpose object. An entity can be composed by many 
-/// `Components`. Each [`System`](crate::ecs::System) will operate in entities with 
+/// An entity represents a general-purpose object. It can be composed by many 
+/// `Components`. Each [`System`](crate::ecs::System) can be used to operate in entities with 
 /// certain components modifying its state. 
-/// Entities are created calling [`crate::ecs::Entities::spawn_entity`].
 ///
-#[derive(Eq, Hash, PartialEq, Clone, Copy)]
+/// * See [`spawn_entity`](crate::ecs::ECS::spawn_entity)
+/// * Also see [`spawn_entity`](crate::ecs::ECS::remove_entity)
+///
+#[derive(Eq, Hash, PartialEq, Clone)]
 pub struct Entity(Uuid);
 
 impl Entity {
