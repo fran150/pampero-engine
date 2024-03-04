@@ -76,9 +76,9 @@ fn run_app() {
     let components = Components::new();
     let mut app = App::new(components);
 
-    let valen = app.ecs.entities.spawn_entity();
-    let paksox = app.ecs.entities.spawn_entity();
-    let otro = app.ecs.entities.spawn_entity();
+    let valen = app.ecs.spawn_entity();
+    let paksox = app.ecs.spawn_entity();
+    let otro = app.ecs.spawn_entity();
 
     app.ecs.components.add_name(&valen, Name("Valen".to_string()));
     app.ecs.components.add_name(&otro, Name("Otro".to_string()));
@@ -87,7 +87,7 @@ fn run_app() {
     app.ecs.components.add_person(&valen, Person());
     app.ecs.components.add_person(&otro, Person());
 
-    app.ecs.systems.register_system(default_group.to_string(), |context| {
+    app.ecs.register_system(default_group.to_string(), |context| {
         for entity in context.entities.iter() {
             if let Some(name) = context.components.get_name(entity) {
                 println!("Hello! Welcome {}", name.0);
@@ -95,7 +95,7 @@ fn run_app() {
         }
     });
 
-    app.ecs.systems.register_system(default_group.to_string(), sit_persons);
+    app.ecs.register_system(default_group.to_string(), sit_persons);
 
     let mut game_loop = GameLoop::new();
 

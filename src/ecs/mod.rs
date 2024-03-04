@@ -30,6 +30,25 @@ impl<T> ECS<T>
         }
     }
 
+    pub fn spawn_entity(&mut self) -> Entity {
+        self.entities.spawn_entity()
+    }
+
+    /// Removes an entity and all of its components.
+    pub fn remove_entity(&mut self, entity: &Entity) 
+        where T: EntityDrop {
+        self.components.remove_entity_components(entity);
+        self.entities.remove_entity(entity);
+    }
+
+    pub fn register_system(&mut self, system_group: String, system_function: fn(SystemContext<T>)) -> System {
+        self.systems.register_system(system_group, system_function)
+    }
+
+    pub fn unregister_system(&mut self, system_group: String, system: &System) {
+        self.systems.unregister_system(system_group, system)
+    }
+
     pub fn run_systems(&mut self, group: String, event: &Event) {
         self.systems.call(group, event, &mut self.components, &mut self.entities);
     }

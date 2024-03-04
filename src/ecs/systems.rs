@@ -30,14 +30,14 @@ impl<T> Systems<T> {
         }
     }
 
-    pub fn register_system(&mut self, system_group: String, system_function: fn(SystemContext<T>)) -> System {
+    pub(crate) fn register_system(&mut self, system_group: String, system_function: fn(SystemContext<T>)) -> System {
         let systems = self.systems.entry(system_group).or_insert(HashMap::new());
         let system = System::new();
         systems.insert(system.clone(), system_function);
         system
     }
 
-    pub fn unregister_system(&mut self, system_group: String, system: &System) {
+    pub(crate) fn unregister_system(&mut self, system_group: String, system: &System) {
         if let Some(systems) = self.systems.get_mut(&system_group) {
             systems.remove(system);
         }
