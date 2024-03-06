@@ -1,13 +1,15 @@
 
 use pampero_engine::{
-    core::GameLoop,
+    core::{
+        GameLoop,
+        GameLoopPhase,
+    },
     ecs::{
         Entity,
         SystemContext
     },
     events::{
         Event,
-        GameLoopEventPhase,
         SystemEvents
     },
     App,
@@ -99,11 +101,11 @@ fn run_app() {
 
     let mut game_loop = GameLoop::new();
 
-    game_loop.handlers.set(GameLoopEventPhase::Physics, |context| {
+    game_loop.handlers.set(GameLoopPhase::Physics, |context| {
         context.app.ecs.run_systems("Default".to_string(), context.event);
     });
 
-    game_loop.handlers.set(GameLoopEventPhase::PostLoop, |context| {
+    game_loop.handlers.set(GameLoopPhase::PostLoop, |context| {
         if let Event::SystemEvent(SystemEvents::GameLoopEvent { event_type: _, t, dt: _}) = context.event {
             if *t > 100.0 {
                 context.app.stop();

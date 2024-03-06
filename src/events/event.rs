@@ -1,17 +1,4 @@
-#[derive(Eq, Hash, PartialEq)]
-pub enum GameLoopEventPhase {
-    Init,
-    PreLoop,
-    GameLoop,
-    PostLoop,
-    PrePhysics,
-    Physics,
-    PostPhysics,
-    PreFrame,
-    Frame,
-    PostFrame,
-    Finish
-}
+use crate::core::GameLoopPhase;
 
 #[derive(Eq, Hash, PartialEq)]
 pub enum KeyboardEventType {
@@ -28,7 +15,7 @@ pub enum TimeStepEventType {
 
 pub enum SystemEvents {
     GameLoopEvent {
-        event_type: GameLoopEventPhase,
+        event_type: GameLoopPhase,
         t: f64,
         dt: f64,
     },
@@ -51,7 +38,7 @@ pub enum Event {
 }
 
 impl Event {
-    pub fn game_loop_event(event_type: GameLoopEventPhase, t: f64, dt: f64) -> Event {
+    pub fn game_loop_event(event_type: GameLoopPhase, t: f64, dt: f64) -> Event {
         Event::SystemEvent(SystemEvents::GameLoopEvent { event_type, t, dt })
     }
 

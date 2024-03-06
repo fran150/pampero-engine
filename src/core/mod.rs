@@ -1,7 +1,10 @@
 mod game_loop;
 mod handlers;
+mod phases;
 
 pub use game_loop::GameLoop;
 
-pub use handlers::GameLoopContext;
-pub use handlers::GameLoopEventHandlers;
+pub use handlers::GameLoopHandlerContext;
+pub use handlers::GameLoopHandlers;
+
+pub use phases::GameLoopPhase;

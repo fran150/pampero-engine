@@ -22,6 +22,10 @@ macro_rules! generate_components_struct {
                         self.[<$component_name _components>].insert(entity.clone(), component);
                     }
 
+                    pub fn [<remove_ $component_name>](&mut self, entity: &$crate::ecs::Entity) {
+                        self.[<$component_name _components>].remove(entity);
+                    }
+
                     pub fn [<get_ $component_name>](&self, entity: &$crate::ecs::Entity) -> Option<&$type> {
                         self.[<$component_name _components>].get(entity)
                     } 

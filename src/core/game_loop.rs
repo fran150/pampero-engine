@@ -1,20 +1,20 @@
 use std::time::Instant;
 
-use crate::{
-    events::GameLoopEventPhase, 
-    App
+use crate::App;
+
+use super::{
+    phases::GameLoopPhase,
+    handlers::GameLoopHandlers
 };
 
-use super::handlers::GameLoopEventHandlers;
-
 pub struct GameLoop<T> {
-    pub handlers: GameLoopEventHandlers<T>,
+    pub handlers: GameLoopHandlers<T>,
 }
 
 impl<T> GameLoop<T> {
     pub fn new() -> Self {
         Self {
-            handlers: GameLoopEventHandlers::new(),
+            handlers: GameLoopHandlers::new(),
         }
     }
 
@@ -36,7 +36,7 @@ impl<T> GameLoop<T> {
         let physics_size = 1000.0 / PPS;
         let frame_size = 1000.0 / FPS;
 
-        self.handlers.execute(GameLoopEventPhase::Init, app, t, 0.0);
+        self.handlers.execute(GameLoopPhase::Init, app, t, 0.0);
 
         while app.run {
             let current_time = instant.elapsed().as_millis();            
@@ -48,32 +48,32 @@ impl<T> GameLoop<T> {
             frame_time += dt;
             rate_accumulator += dt;
 
-            self.handlers.execute(GameLoopEventPhase::GameLoop, app, t, dt);
+            self.handlers.execute(GameLoopPhase::GameLoop, app, t, dt);
 
             if physics_time > physics_size {
                 physics_time -= physics_size;
 
-                self.handlers.execute(GameLoopEventPhase::PrePhysics, app, t, dt);
-                self.handlers.execute(GameLoopEventPhase::Physics, app, t, dt);
-                self.handlers.execute(GameLoopEventPhase::PostPhysics, app, t, dt);
+                self.handlers.execute(GameLoopPhase::PrePhysics, app, t, dt);
+                self.handlers.execute(GameLoopPhase::Physics, app, t, dt);
+                self.handlers.execute(GameLoopPhase::PostPhysics, app, t, dt);
 
                 physics_step_counter += 1;
             }
 
-            self.handlers.execute(GameLoopEventPhase::GameLoop, app, t, dt);
+            self.handlers.execute(GameLoopPhase::GameLoop, app, t, dt);
 
             if frame_time > frame_size {
                 frame_time -= frame_size;
 
-                self.handlers.execute(GameLoopEventPhase::PreFrame, app, t, dt);
-                self.handlers.execute(GameLoopEventPhase::Frame, app, t, dt);
-                self.handlers.execute(GameLoopEventPhase::PostFrame, app, t, dt);
+                self.handlers.execute(GameLoopPhase::PreFrame, app, t, dt);
+                self.handlers.execute(GameLoopPhase::Frame, app, t, dt);
+                self.handlers.execute(GameLoopPhase::PostFrame, app, t, dt);
 
 
                 frame_counter += 1;
             }
 
-            self.handlers.execute(GameLoopEventPhase::PostLoop, app, t, dt);
+            self.handlers.execute(GameLoopPhase::PostLoop, app, t, dt);
 
             if rate_accumulator > 1000.0 {
                 println!("{} PPS - {} FPS", physics_step_counter, frame_counter);
@@ -85,6 +85,6 @@ impl<T> GameLoop<T> {
             }
         }
 
-        self.handlers.execute(GameLoopEventPhase::Finish, app, t, 0.0);
+        self.handlers.execute(GameLoopPhase::Finish, app, t, 0.0);
     }
 }
