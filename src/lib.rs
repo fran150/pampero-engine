@@ -1,13 +1,14 @@
-use core::GameLoop;
+use game_loop::GameLoop;
 
 use ecs::{
     ECS, 
     EntityDrop
 };
+
 use events::Events;
 
 pub mod ecs;
-pub mod core;
+pub mod game_loop;
 pub mod events;
 
 mod macros;

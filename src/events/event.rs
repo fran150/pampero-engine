@@ -1,4 +1,4 @@
-use crate::core::GameLoopPhase;
+use crate::game_loop::GameLoopPhase;
 
 #[derive(Eq, Hash, PartialEq)]
 pub enum KeyboardEventType {

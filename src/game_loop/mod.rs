@@ -1,11 +1,14 @@
+mod handlers;
+mod phases;
+
+pub use handlers::GameLoopHandlerContext;
+pub use handlers::GameLoopHandlers;
+
+pub use phases::GameLoopPhase;
+
 use std::time::Instant;
 
 use crate::App;
-
-use super::{
-    phases::GameLoopPhase,
-    handlers::GameLoopHandlers
-};
 
 pub struct GameLoop<T, U> {
     pub handlers: GameLoopHandlers<T, U>,

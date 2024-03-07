@@ -1,6 +1,6 @@
 
 use pampero_engine::{
-    core::{
+    game_loop::{
         GameLoop,
         GameLoopPhase,
     }, ecs::{
