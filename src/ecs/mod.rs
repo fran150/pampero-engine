@@ -14,13 +14,13 @@ pub use systems::SystemContext;
 pub use systems::Systems;
 
 #[non_exhaustive]
-pub struct ECS<T> {
+pub struct ECS<T, U> {
     pub entities: Entities,
     pub components: T,
-    pub systems: Systems<T>,
+    pub systems: Systems<T, U>,
 }
 
-impl<T> ECS<T> 
+impl<T, U> ECS<T, U> 
     where T: EntityDrop {
     pub fn new(components: T) -> Self {
         Self {
@@ -41,7 +41,7 @@ impl<T> ECS<T>
         self.entities.remove_entity(entity);
     }
 
-    pub fn register_system(&mut self, system_group: String, system_function: fn(SystemContext<T>)) -> System {
+    pub fn register_system(&mut self, system_group: String, system_function: fn(SystemContext<T, U>)) -> System {
         self.systems.register_system(system_group, system_function)
     }
 
@@ -49,7 +49,7 @@ impl<T> ECS<T>
         self.systems.unregister_system(system_group, system)
     }
 
-    pub fn run_systems(&mut self, group: String, event: &Event) {
+    pub fn run_systems(&mut self, group: String, event: &Event<U>) {
         self.systems.call(group, event, &mut self.components, &mut self.entities);
     }
 }

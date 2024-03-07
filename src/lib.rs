@@ -4,6 +4,7 @@ use ecs::{
     ECS, 
     EntityDrop
 };
+use events::Events;
 
 pub mod ecs;
 pub mod core;
@@ -11,18 +12,20 @@ pub mod events;
 
 mod macros;
 
-pub struct App<T> {
+pub struct App<T, U> {
     run: bool,
-    pub ecs: ECS<T>
+    pub ecs: ECS<T, U>,
+    pub events: Events<U>
 }
 
-impl<T> App<T> {
+impl<T, U> App<T, U> {
     
     pub fn new(components: T) -> Self
         where T: EntityDrop {
         App {
-            ecs: ECS::new(components),
             run: false,
+            ecs: ECS::new(components),
+            events: Events::new()
         }
     }
 
@@ -30,7 +33,7 @@ impl<T> App<T> {
         self.run
     }
 
-    pub fn run(&mut self, game_loop: &mut GameLoop<T>) 
+    pub fn run(&mut self, game_loop: &mut GameLoop<T, U>) 
         where T: EntityDrop {
         self.run = true;
         game_loop.run(self);

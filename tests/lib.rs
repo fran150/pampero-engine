@@ -3,18 +3,19 @@ use pampero_engine::{
     core::{
         GameLoop,
         GameLoopPhase,
-    },
-    ecs::{
+    }, ecs::{
         Entity,
         SystemContext
-    },
-    events::{
-        Event,
-        SystemEvents
-    },
-    App,
-    generate_components_struct
+    }, events::{
+        Event, SystemEvents
+    }, generate_components_struct, App
 };
+
+pub enum UserEvents {
+    GoAway {
+        name: Name,    
+    },
+}
 
 #[derive(Debug)]
 pub struct Person();
@@ -33,7 +34,7 @@ generate_components_struct!(
     inside: Inside
 );
 
-fn sit_persons(context: SystemContext<Components>) {
+fn sit_persons(context: SystemContext<Components, UserEvents>) {
     let filtered: Vec<&Entity> = context.entities.iter()
         .filter(|e| {
             context.components.get_name(e).is_some() && 
@@ -73,7 +74,8 @@ fn sit_persons(context: SystemContext<Components>) {
 
 #[test]
 fn run_app() {   
-    let default_group = "Default";
+    const DEFAULT_GROUP: &str = "Default";
+    const CLOSING_GROUP: &str = "Closing";
 
     let components = Components::new();
     let mut app = App::new(components);
@@ -89,7 +91,7 @@ fn run_app() {
     app.ecs.components.add_person(&valen, Person());
     app.ecs.components.add_person(&otro, Person());
 
-    app.ecs.register_system(default_group.to_string(), |context| {
+    app.ecs.register_system(DEFAULT_GROUP.to_string(), |context| {
         for entity in context.entities.iter() {
             if let Some(name) = context.components.get_name(entity) {
                 println!("Hello! Welcome {}", name.0);
@@ -97,17 +99,39 @@ fn run_app() {
         }
     });
 
-    app.ecs.register_system(default_group.to_string(), sit_persons);
+    app.ecs.register_system(CLOSING_GROUP.to_string(), |context| {
+        context.entities.iter().filter(|entity| {
+            context.components.get_name(entity).is_some()
+        }).for_each(|entity| {
+            if let Event::UserEvent(UserEvents::GoAway { name }) = context.event {
+                let current = context.components.get_name(entity).unwrap();
+                if current.0 == name.0 {
+                    println!("Goodbye! {}", name.0);
+                }
+            }
+        });
+    });
+
+    app.ecs.register_system(DEFAULT_GROUP.to_string(), sit_persons);
 
     let mut game_loop = GameLoop::new();
 
     game_loop.handlers.set(GameLoopPhase::Physics, |context| {
-        context.app.ecs.run_systems("Default".to_string(), context.event);
+        context.app.ecs.run_systems(DEFAULT_GROUP.to_string(), context.event);
     });
 
     game_loop.handlers.set(GameLoopPhase::PostLoop, |context| {
-        if let Event::SystemEvent(SystemEvents::GameLoopEvent { event_type: _, t, dt: _}) = context.event {
+        if let Some(event) = context.app.events.pop() {
+            context.app.ecs.run_systems(CLOSING_GROUP.to_string(), &event);
+        }
+    });
+
+    game_loop.handlers.set(GameLoopPhase::PreLoop, |context| {
+        if let Event::SystemEvent(SystemEvents::GameLoopEvent { phase: _, t, dt: _}) = context.event {
             if *t > 100.0 {
+                context.app.events.dispatch(Event::user_event(
+                    UserEvents::GoAway { name: Name("Paksox".to_string())}
+                ));
                 context.app.stop();
             }
         }

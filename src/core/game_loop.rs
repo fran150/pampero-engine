@@ -7,18 +7,18 @@ use super::{
     handlers::GameLoopHandlers
 };
 
-pub struct GameLoop<T> {
-    pub handlers: GameLoopHandlers<T>,
+pub struct GameLoop<T, U> {
+    pub handlers: GameLoopHandlers<T, U>,
 }
 
-impl<T> GameLoop<T> {
+impl<T, U> GameLoop<T, U> {
     pub fn new() -> Self {
         Self {
             handlers: GameLoopHandlers::new(),
         }
     }
 
-    pub fn run(&mut self, app: &mut App<T>) {
+    pub fn run(&mut self, app: &mut App<T, U>) {
         const PPS:f64 = 60.0;
         const FPS:f64 = 60.0;
         
@@ -48,7 +48,7 @@ impl<T> GameLoop<T> {
             frame_time += dt;
             rate_accumulator += dt;
 
-            self.handlers.execute(GameLoopPhase::GameLoop, app, t, dt);
+            self.handlers.execute(GameLoopPhase::PreLoop, app, t, dt);
 
             if physics_time > physics_size {
                 physics_time -= physics_size;

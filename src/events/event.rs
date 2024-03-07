@@ -7,15 +7,9 @@ pub enum KeyboardEventType {
     KeyHold,
 }
 
-#[derive(Eq, Hash, PartialEq)]
-pub enum TimeStepEventType {
-    PhysicStep,
-    FrameStep,
-}
-
 pub enum SystemEvents {
     GameLoopEvent {
-        event_type: GameLoopPhase,
+        phase: GameLoopPhase,
         t: f64,
         dt: f64,
     },
@@ -24,29 +18,43 @@ pub enum SystemEvents {
         key: char, 
         t: f64, 
         dt: f64,
-    },
-    TimeStepEvent {
-        event_type: TimeStepEventType,
-        t: f64,
-        dt: f64,
     }
 }
 
-pub enum Event {
+pub enum Event<T> {
     SystemEvent(SystemEvents),
-    UserEvent(),
+    UserEvent(T),
 }
 
-impl Event {
-    pub fn game_loop_event(event_type: GameLoopPhase, t: f64, dt: f64) -> Event {
-        Event::SystemEvent(SystemEvents::GameLoopEvent { event_type, t, dt })
+impl<T> Event<T> {
+    pub(crate) fn game_loop_event(phase: GameLoopPhase, t: f64, dt: f64) -> Event<T> {
+        Event::SystemEvent(SystemEvents::GameLoopEvent { phase, t, dt })
     }
 
-    pub fn timestep_event(event_type: TimeStepEventType, t: f64, dt: f64) -> Event {
-        Event::SystemEvent(SystemEvents::TimeStepEvent { event_type, t, dt })
-    }
-
-    pub fn keyboard_event(event_type: KeyboardEventType, key: char, t: f64, dt: f64) -> Event {
+    // Should be pub(crate) or might be replaced by exposing SDL events
+    pub fn keyboard_event(event_type: KeyboardEventType, key: char, t: f64, dt: f64) -> Event<T> {
         Event::SystemEvent(SystemEvents::KeyboardEvent { event_type, key, t, dt })
+    }
+
+    pub fn user_event(event: T) -> Event<T> {
+        Event::UserEvent(event)
+    }
+}
+
+pub struct Events<T> {
+    events: Vec<Event<T>>,
+}
+
+impl<T> Events<T> {
+    pub(crate) fn new() -> Events<T> {
+        Events { events: Vec::new() }
+    }
+
+    pub fn dispatch(&mut self, event: Event<T>) {
+        self.events.push(event);
+    }
+
+    pub fn pop(&mut self) -> Option<Event<T>> {
+        self.events.pop()
     }
 }

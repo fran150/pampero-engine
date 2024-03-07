@@ -7,13 +7,13 @@ use crate::{
 
 use super::GameLoopPhase;
 
-pub struct GameLoopHandlerContext<'a, T> {
-    pub app: &'a mut App<T>, 
-    pub event: &'a Event
+pub struct GameLoopHandlerContext<'a, T, U> {
+    pub app: &'a mut App<T, U>, 
+    pub event: &'a Event<U>
 }
 
-impl<'a, T> GameLoopHandlerContext<'a, T> {
-    pub(crate) fn from(app: &'a mut App<T>, event: &'a Event) -> Self {
+impl<'a, T, U> GameLoopHandlerContext<'a, T, U> {
+    pub(crate) fn from(app: &'a mut App<T, U>, event: &'a Event<U>) -> Self {
         Self {
             app,
             event
@@ -21,18 +21,18 @@ impl<'a, T> GameLoopHandlerContext<'a, T> {
     }
 }
 
-pub struct GameLoopHandlers<T> {
-    handler: HashMap<GameLoopPhase, fn(GameLoopHandlerContext<T>)>,
+pub struct GameLoopHandlers<T, U> {
+    handler: HashMap<GameLoopPhase, fn(GameLoopHandlerContext<T, U>)>,
 }
 
-impl<T> GameLoopHandlers<T> {
+impl<T, U> GameLoopHandlers<T, U> {
     pub(crate) fn new() -> Self {
         Self {
             handler: HashMap::new(),
         }
     }
 
-    pub fn set(&mut self, phase: GameLoopPhase, handler: fn(GameLoopHandlerContext<T>)) {
+    pub fn set(&mut self, phase: GameLoopPhase, handler: fn(GameLoopHandlerContext<T, U>)) {
         self.handler.insert(phase, handler);
     }
 
@@ -40,7 +40,7 @@ impl<T> GameLoopHandlers<T> {
         self.handler.remove(&phase);
     }
 
-    pub(crate) fn execute(&mut self, phase: GameLoopPhase, app: &mut App<T>, t: f64, dt: f64) {
+    pub(crate) fn execute(&mut self, phase: GameLoopPhase, app: &mut App<T, U>, t: f64, dt: f64) {
         if let Some(handler) = self.handler.get(&phase) {
             let event = Event::game_loop_event(phase, t, dt);
             let context = GameLoopHandlerContext::from(app, &event);

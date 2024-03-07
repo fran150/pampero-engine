@@ -4,6 +4,13 @@ use pampero_engine::{
     generate_components_struct
 };
 
+pub enum UserEvents {
+    SomeEvent {
+        x: i32,
+        y: i32,
+    },
+}
+
 pub struct Name(String);
 pub struct Person();
 
@@ -16,7 +23,7 @@ generate_components_struct!(
 #[test]
 fn entities_can_be_created_and_removed() {   
     let components = Components::new();
-    let mut app = App::new(components);
+    let mut app: App<Components, UserEvents> = App::new(components);
 
     let e1 = app.ecs.spawn_entity();
     let e2 = app.ecs.spawn_entity();
@@ -41,7 +48,7 @@ fn entities_can_be_created_and_removed() {
 #[test]
 fn entities_iterator_to_select_based_on_components() {
     let components = Components::new();
-    let mut app = App::new(components);
+    let mut app: App<Components, UserEvents> = App::new(components);
 
     let person = app.ecs.spawn_entity();
     let cat = app.ecs.spawn_entity();
