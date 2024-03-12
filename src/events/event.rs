@@ -1,4 +1,12 @@
-use crate::game_loop::GameLoopPhase;
+use std::collections::LinkedList;
+
+use crate::{
+    ecs::EntityDrop, 
+    game_loop::{
+        GameLoopHandlerContext, 
+        GameLoopPhase
+    }
+};
 
 #[derive(Eq, Hash, PartialEq)]
 pub enum KeyboardEventType {
@@ -42,19 +50,41 @@ impl<T> Event<T> {
 }
 
 pub struct Events<T> {
-    events: Vec<Event<T>>,
+    events: LinkedList<Event<T>>,
 }
 
 impl<T> Events<T> {
     pub(crate) fn new() -> Events<T> {
-        Events { events: Vec::new() }
+        Events { events: LinkedList::new() }
     }
 
-    pub fn dispatch(&mut self, event: Event<T>) {
-        self.events.push(event);
+    pub fn trigger(&mut self, event: Event<T>) {
+        self.events.push_back(event);
     }
 
     pub fn pop(&mut self) -> Option<Event<T>> {
-        self.events.pop()
+        self.events.pop_front()
+    }
+
+    pub fn peek(&self) -> Option<&Event<T>> {
+        self.events.front()
+    }
+
+    pub fn clear(&mut self) {
+        self.events.clear();
+    }
+}
+
+pub struct EventDispatcher;
+
+impl EventDispatcher {
+    pub fn dispatch<T: EntityDrop, U, F: Fn(&Event<U>) -> Option<String>>(mapper: F, context: GameLoopHandlerContext<T, U>) {
+        while let Some(event) = context.app.events.pop() {
+            if let Some(group) = mapper(&event) {
+                context.app.ecs.run_systems(group, &event);
+            } else {
+                context.app.events.trigger(event);
+            }
+        }
     }
 }

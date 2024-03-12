@@ -1,13 +1,13 @@
 
 use pampero_engine::{
-    game_loop::{
-        GameLoop,
-        GameLoopPhase,
-    }, ecs::{
+    ecs::{
         Entity,
         SystemContext
     }, events::{
-        Event, SystemEvents
+        Event, EventDispatcher, SystemEvents
+    }, game_loop::{
+        GameLoop,
+        GameLoopPhase,
     }, generate_components_struct, App
 };
 
@@ -121,15 +121,18 @@ fn run_app() {
     });
 
     game_loop.handlers.set(GameLoopPhase::PostLoop, |context| {
-        if let Some(event) = context.app.events.pop() {
-            context.app.ecs.run_systems(CLOSING_GROUP.to_string(), &event);
-        }
+        EventDispatcher::dispatch(|event| {
+            match event {
+                Event::UserEvent(UserEvents::GoAway { name: _ }) => Some(CLOSING_GROUP.to_string()),
+                _ => None
+            }
+        }, context);
     });
 
     game_loop.handlers.set(GameLoopPhase::PreLoop, |context| {
         if let Event::SystemEvent(SystemEvents::GameLoopEvent { phase: _, t, dt: _}) = context.event {
             if *t > 100.0 {
-                context.app.events.dispatch(Event::user_event(
+                context.app.events.trigger(Event::user_event(
                     UserEvents::GoAway { name: Name("Paksox".to_string())}
                 ));
                 context.app.stop();
